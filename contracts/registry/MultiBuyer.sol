@@ -8,16 +8,13 @@ contract MultiBuyer is MultiChanger {
     function buy(
         IMultiToken _mtkn,
         uint256 _minimumReturn,
-        uint256[] _throughTokens,
-        address[] _exchanges,
-        bytes _datas,
-        uint[] _datasIndexes, // including 0 and LENGTH values
-        uint256[] _fractions
+        bytes _callDatas,
+        uint[] _starts // including 0 and LENGTH values
     )
         public
         payable
     {
-        change(_exchanges, _datas, _datasIndexes, _fractions, _throughTokens);
+        change(_callDatas, _starts);
 
         uint mtknTotalSupply = _mtkn.totalSupply(); // optimization totalSupply
         uint256 bestAmount = uint256(-1);
@@ -46,16 +43,13 @@ contract MultiBuyer is MultiChanger {
 
     function buyFirstTokens(
         IMultiToken _mtkn,
-        uint256[] _throughTokens,
-        address[] _exchanges,
-        bytes _datas,
-        uint[] _datasIndexes, // including 0 and LENGTH values
-        uint256[] _fractions
+        bytes _callDatas,
+        uint[] _starts // including 0 and LENGTH values
     )
         public
         payable
     {
-        change(_exchanges, _datas, _datasIndexes, _fractions, _throughTokens);
+        change(_callDatas, _starts);
 
         uint tokensCount = _mtkn.tokensCount();
         uint256[] memory amounts = new uint256[](tokensCount);

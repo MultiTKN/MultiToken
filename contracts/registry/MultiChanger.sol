@@ -6,6 +6,15 @@ import "openzeppelin-solidity/contracts/ownership/CanReclaimToken.sol";
 import "../interface/IMultiToken.sol";
 
 contract IBancorNetwork {
+    function convert(
+        address[] _path,
+        uint256 _amount,
+        uint256 _minReturn
+    ) 
+        public
+        payable
+        returns(uint256);
+
     function claimAndConvert(
         address[] _path,
         uint256 _amount,
@@ -18,9 +27,9 @@ contract IBancorNetwork {
 
 contract IKyberNetworkProxy {
     function trade(
-        ERC20 src,
+        address src,
         uint srcAmount,
-        ERC20 dest,
+        address dest,
         address destAddress,
         uint maxDestAmount,
         uint minConversionRate,
@@ -35,131 +44,153 @@ contract IKyberNetworkProxy {
 contract MultiChanger is CanReclaimToken {
     using SafeMath for uint256;
 
-    function subbytes(bytes _data, uint _start, uint _length) internal pure returns(bytes) {
-        bytes memory result = new bytes(_length);
-        for (uint i = 0; i < _length; i++) {
-            result[i] = _data[_start + i];
+    // https://github.com/Arachnid/solidity-stringutils/blob/master/src/strings.sol#L45
+    function memcpy(uint dest, uint src, uint len) private pure {
+        // Copy word-length chunks while possible
+        for(; len >= 32; len -= 32) {
+            assembly {
+                mstore(dest, mload(src))
+            }
+            dest += 32;
+            src += 32;
         }
-        return result;
+
+        // Copy remaining bytes
+        uint mask = 256 ** (32 - len) - 1;
+        assembly {
+            let srcpart := and(mload(src), not(mask))
+            let destpart := and(mload(dest), mask)
+            mstore(dest, or(destpart, srcpart))
+        }
+    }
+
+    function subbytes(bytes _data, uint _start, uint _length) private pure returns(bytes) {
+        bytes memory result = new bytes(_length);
+        uint from;
+        uint to;
+        assembly { 
+            from := add(_data, _start) 
+            to := result
+        }
+        memcpy(to, from, _length);
     }
 
     function change(
-        address[] _exchanges,
-        bytes _datas,
-        uint[] _datasIndexes, // including 0 and LENGTH values
-        uint256[] _fractions, // x.mul(high 128bit).div(low 128bit)
-        uint256[] _throughTokens
+        bytes _callDatas,
+        uint[] _starts // including 0 and LENGTH values
     )
         internal
     {
-        require(_datasIndexes.length == _exchanges.length + 1, "buy: _datasIndexes should start with 0 and end with LENGTH");
-        require(_fractions.length == _exchanges.length, "buy: _fractions should have the same length as _exchanges");
-
-        for (uint i = 0; i < _exchanges.length; i++) {
-            bytes memory data;
-            if (_throughTokens[i] >> 224 == 0) {
-                data = subbytes(_datas, _datasIndexes[i], _datasIndexes[i + 1] - _datasIndexes[i]);
-                convertEthToToken(_exchanges[i], data, _fractions[i]);
-            } else
-            if (_throughTokens[i] >> 224 == 1) {
-                data = subbytes(_datas, _datasIndexes[i], _datasIndexes[i + 1] - _datasIndexes[i]);
-                convertTokenToAny_onApprove(_exchanges[i], data, ERC20(_throughTokens[i]), _fractions[i]);
-            } else
-            if (_throughTokens[i] >> 224 == 2) {
-                data = subbytes(_datas, _datasIndexes[i], _datasIndexes[i + 1] - _datasIndexes[i]);
-                convertTokenToAny_onTransfer(_exchanges[i], data, ERC20(_throughTokens[i]), _fractions[i]);
-            } else
-            if (_throughTokens[i] >> 224 == 100) {
-                bancorTokenToAny_onApprove(IBancorNetwork(_exchanges[i]), _datas, _datasIndexes[i], ERC20(_throughTokens[i]), _fractions[i]);
-            } else
-            if (_throughTokens[i] >> 224 == 101) {
-                bancorTokenToAny_onTransfer(IBancorNetwork(_exchanges[i]), _datas, _datasIndexes[i], ERC20(_throughTokens[i]), _fractions[i]);
-            } else
-            if (_throughTokens[i] >> 224 == 201) {
-                kyberTokenToAny_onApprove(IKyberNetworkProxy(_exchanges[i]), _datas, _datasIndexes[i], ERC20(_throughTokens[i]), _fractions[i]);
-            }
+        for (uint i = 0; i < _starts.length - 1; i++) {
+            bytes memory data = subbytes(
+                _callDatas,
+                _starts[i],
+                _starts[i + 1] - _starts[i]
+            );
+            require(address(this).call(data));
         }
     }
 
-    function convertEthToToken(address _target, bytes _data, uint256 _value2) internal {
-        uint256 value = address(this).balance.mul(_value2 >> 128).div((_value2 << 128) >> 128);
+    function sendEthValue(address _target, bytes _data, uint256 _value) external {
+        require(_target.call.value(_value)(_data));
+    }
+
+    function sendEthProportion(address _target, bytes _data, uint256 _mul, uint256 _div) external {
+        uint256 value = address(this).balance.mul(_mul).div(_div);
         require(_target.call.value(value)(_data));
     }
 
-    function convertTokenToAny_onApprove(address _target, bytes _data, ERC20 _fromToken, uint256 _value2) internal {
-        _value2; // unused
-        if (_fromToken.allowance(this, _target) == 0) {
-            _fromToken.approve(_target, uint256(-1));
+    function approveTokenAmount(address _target, bytes _data, ERC20 _fromToken, uint256 _amount) external {
+        if (_fromToken.allowance(this, _target) != 0) {
+            _fromToken.approve(_target, 0);
         }
+        _fromToken.approve(_target, _amount);
         require(_target.call(_data));
     }
 
-    function convertTokenToAny_onTransfer(address _target, bytes _data, ERC20 _fromToken, uint256 _value2) internal {
-        uint256 amount = _fromToken.balanceOf(this).mul(_value2 >> 128).div((_value2 << 128) >> 128);
+    function approveTokenProportion(address _target, bytes _data, ERC20 _fromToken, uint256 _mul, uint256 _div) external {
+        uint256 amount = _fromToken.balanceOf(this).mul(_mul).div(_div);
+        if (_fromToken.allowance(this, _target) != 0) {
+            _fromToken.approve(_target, 0);
+        }
+        _fromToken.approve(_target, amount);
+        require(_target.call(_data));
+    }
+
+    function transferTokenAmount(address _target, bytes _data, ERC20 _fromToken, uint256 _amount) external {
+        _fromToken.transfer(_target, _amount);
+        require(_target.call(_data));
+    }
+
+    function transferTokenProportion(address _target, bytes _data, ERC20 _fromToken, uint256 _mul, uint256 _div) external {
+        uint256 amount = _fromToken.balanceOf(this).mul(_mul).div(_div);
         _fromToken.transfer(_target, amount);
         require(_target.call(_data));
     }
 
-    function bancorTokenToAny_onApprove(IBancorNetwork _bancor, bytes _data, uint _offset, ERC20 _fromToken, uint256 _value2) internal {
-        uint256 amount = _fromToken.balanceOf(this).mul(_value2 >> 128).div((_value2 << 128) >> 128);
+    // Bancor Network
+
+    function bancorApproveTokenAmount(IBancorNetwork _bancor, address[] _path, ERC20 _fromToken, uint256 _amount) external {
         if (_fromToken.allowance(this, _bancor) == 0) {
             _fromToken.approve(_bancor, uint256(-1));
         }
-        bancorTokenToAny(_bancor, _data, _offset, _fromToken, amount);
+        _bancor.claimAndConvert(_path, _amount, 1);
     }
 
-    function bancorTokenToAny_onTransfer(IBancorNetwork _bancor, bytes _data, uint _offset, ERC20 _fromToken, uint256 _value2) internal {
-        uint256 amount = _fromToken.balanceOf(this).mul(_value2 >> 128).div((_value2 << 128) >> 128);
+    function bancorApproveTokenProportion(IBancorNetwork _bancor, address[] _path, ERC20 _fromToken, uint256 _mul, uint256 _div) external {
+        uint256 amount = _fromToken.balanceOf(this).mul(_mul).div(_div);
+        if (_fromToken.allowance(this, _bancor) == 0) {
+            _fromToken.approve(_bancor, uint256(-1));
+        }
+        _bancor.claimAndConvert(_path, amount, 1);
+    }
+
+    function bancorTransferTokenAmount(IBancorNetwork _bancor, address[] _path, ERC20 _fromToken, uint256 _amount) external {
+        _fromToken.transfer(_bancor, _amount);
+        _bancor.convert(_path, _amount, 1);
+    }
+
+    function bancorTransferTokenProportion(IBancorNetwork _bancor, address[] _path, ERC20 _fromToken, uint256 _mul, uint256 _div) external {
+        uint256 amount = _fromToken.balanceOf(this).mul(_mul).div(_div);
         _fromToken.transfer(_bancor, amount);
-        bancorTokenToAny(_bancor, _data, _offset, _fromToken, amount);
+        _bancor.convert(_path, amount, 1);
     }
 
-    function kyberTokenToAny_onApprove(IKyberNetworkProxy _kyber, bytes _data, uint _offset, ERC20 _fromToken, uint256 _value2) internal {
-        uint256 amount = _fromToken.balanceOf(this).mul(_value2 >> 128).div((_value2 << 128) >> 128);
+    function bancorAlreadyTransferedTokenAmount(IBancorNetwork _bancor, address[] _path, uint256 _amount) external {
+        _bancor.convert(_path, _amount, 1);
+    }
+
+    function bancorAlreadyTransferedTokenProportion(IBancorNetwork _bancor, address[] _path, ERC20 _fromToken, uint256 _mul, uint256 _div) external {
+        uint256 amount = _fromToken.balanceOf(_bancor).mul(_mul).div(_div);
+        _bancor.convert(_path, amount, 1);
+    }
+
+    // Kyber Network
+
+    function kyberApproveTokenAmount(IKyberNetworkProxy _kyber, ERC20 _fromToken, address _toToken, uint256 _amount) external {
         if (_fromToken.allowance(this, _kyber) == 0) {
             _fromToken.approve(_kyber, uint256(-1));
         }
-        kyberTokenToAny(_kyber, _data, _offset, _fromToken, amount);
-    }
-
-    // function kyberTokenToAny_onTransfer(IKyberNetworkProxy _kyber, bytes _data, uint _offset, ERC20 _fromToken, uint256 _value2) internal {
-    //     uint256 amount = _fromToken.balanceOf(this).mul(_value2 >> 128).div((_value2 << 128) >> 128);
-    //     _fromToken.transfer(_kyber, amount);
-    //     kyberTokenToAny(_kyber, _data, _offset, _fromToken, amount);
-    // }
-
-    // Private methods
-
-    function bancorTokenToAny(IBancorNetwork _bancor, bytes _data, uint _dataStart, ERC20 _fromToken, uint256 _amount) private {
-        uint256 converter = 0;
-        uint256 toToken = 0;
-        assembly {
-            converter := mload(add(_data, add(_dataStart, 0x20)))
-            toToken := mload(add(_data, add(_dataStart, 0x40)))
-        }
-
-        address[] memory path = new address[](3);
-        path[0] = _fromToken;
-        path[1] = address(converter);
-        path[2] = address(toToken);
-
-        _bancor.claimAndConvert(
-            path,
-            _amount,
-            1
-        );
-    }
-
-    function kyberTokenToAny(IKyberNetworkProxy _kyber, bytes _data, uint _dataStart, ERC20 _fromToken, uint256 _amount) private {
-        uint256 toToken = 0;
-        assembly {
-            toToken := mload(add(_data, add(_dataStart, 0x20)))
-        }
-
         _kyber.trade(
             _fromToken,
             _amount,
-            ERC20(toToken),
+            _toToken,
+            this,
+            1 << 255,
+            0,
+            0
+        );
+    }
+
+    function kyberApproveTokenProportion(IKyberNetworkProxy _kyber, ERC20 _fromToken, address _toToken, uint256 _mul, uint256 _div) external {
+        uint256 amount = _fromToken.balanceOf(this).mul(_mul).div(_div);
+        if (_fromToken.allowance(this, _kyber) == 0) {
+            _fromToken.approve(_kyber, uint256(-1));
+        }
+        _kyber.trade(
+            _fromToken,
+            amount,
+            _toToken,
             this,
             1 << 255,
             0,

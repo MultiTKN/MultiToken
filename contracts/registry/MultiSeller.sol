@@ -18,22 +18,16 @@ contract MultiSeller is MultiChanger {
     function sellForOrigin(
         IMultiToken _mtkn,
         uint256 _amount,
-        address[] _exchanges,
-        bytes _datas,
-        uint[] _datasIndexes, // including 0 and LENGTH values
-        uint256[] _fractions,
-        uint256[] _throughTokens
+        bytes _callDatas,
+        uint[] _starts // including 0 and LENGTH values
     )
         public
     {
         sell(
             _mtkn,
             _amount,
-            _exchanges,
-            _datas,
-            _datasIndexes,
-            _fractions,
-            _throughTokens,
+            _callDatas,
+            _starts,
             tx.origin
         );
     }
@@ -41,18 +35,15 @@ contract MultiSeller is MultiChanger {
     function sell(
         IMultiToken _mtkn,
         uint256 _amount,
-        address[] _exchanges,
-        bytes _datas,
-        uint[] _datasIndexes, // including 0 and LENGTH values
-        uint256[] _fractions,
-        uint256[] _throughTokens,
+        bytes _callDatas,
+        uint[] _starts, // including 0 and LENGTH values
         address _for
     )
         public
     {
         _mtkn.transferFrom(msg.sender, this, _amount);
         _mtkn.unbundle(this, _amount);
-        change(_exchanges, _datas, _datasIndexes, _fractions, _throughTokens);
+        change(_callDatas, _starts);
         _for.transfer(address(this).balance);
     }
 }
