@@ -38,16 +38,16 @@ contract MultiTokenNetwork is Pausable {
         multitokens.length -= 1;
     }
 
-    function denyBundlingMultitoken(uint index) public onlyOwner {
-        IBasicMultiToken(multitokens[index]).denyBundling();
+    function disableBundlingMultitoken(uint index) public onlyOwner {
+        IBasicMultiToken(multitokens[index]).disableBundling();
     }
 
-    function allowBundlingMultitoken(uint index) public onlyOwner {
-        IBasicMultiToken(multitokens[index]).allowBundling();
+    function enableBundlingMultitoken(uint index) public onlyOwner {
+        IBasicMultiToken(multitokens[index]).enableBundling();
     }
 
-    function denyChangesMultitoken(uint index) public onlyOwner {
-        IMultiToken(multitokens[index]).denyChanges();
+    function disableChangesMultitoken(uint index) public onlyOwner {
+        IMultiToken(multitokens[index]).disableChanges();
     }
 
     function setDeployer(uint256 index, IDeployer deployer) public onlyOwner whenNotPaused {

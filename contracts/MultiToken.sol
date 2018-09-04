@@ -10,12 +10,12 @@ contract MultiToken is IMultiToken, BasicMultiToken {
 
     uint256 internal minimalWeight;
     mapping(address => uint256) public weights;
-    bool public changesEnabled = true;
+    bool public isChangesEnabled = true;
 
     event ChangesDisabled();
 
     modifier changesEnabled {
-        require(changesEnabled, "Operation can't be performed because changes are disabled");
+        require(isChangesEnabled, "Operation can't be performed because changes are disabled");
         _;
     }
 
@@ -60,8 +60,8 @@ contract MultiToken is IMultiToken, BasicMultiToken {
     // Admin methods
 
     function disableChanges() public onlyOwner {
-        require(changesEnabled, "Changes are already disabled");
-        changesEnabled = false;
+        require(isChangesEnabled, "Changes are already disabled");
+        isChangesEnabled = false;
         emit ChangesDisabled();
     }
 
