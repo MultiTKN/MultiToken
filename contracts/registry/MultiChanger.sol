@@ -130,29 +130,38 @@ contract MultiChanger is CanReclaimToken {
 
     // Bancor Network
 
-    function bancorApproveTokenAmount(IBancorNetwork _bancor, address[] _path, ERC20 _fromToken, uint256 _amount) external {
-        if (_fromToken.allowance(this, _bancor) == 0) {
-            _fromToken.approve(_bancor, uint256(-1));
+    function bancorSendEthValue(IBancorNetwork _bancor, address[] _path, uint256 _value) external {
+        _bancor.convert.value(_value)(_path, _value, 1);
+    }
+
+    function bancorSendEthProportion(IBancorNetwork _bancor, address[] _path, uint256 _mul, uint256 _div) external {
+        uint256 value = address(this).balance.mul(_mul).div(_div);
+        _bancor.convert.value(value)(_path, value, 1);
+    }
+
+    function bancorApproveTokenAmount(IBancorNetwork _bancor, address[] _path, uint256 _amount) external {
+        if (ERC20(_path[0]).allowance(this, _bancor) == 0) {
+            ERC20(_path[0]).approve(_bancor, uint256(-1));
         }
         _bancor.claimAndConvert(_path, _amount, 1);
     }
 
-    function bancorApproveTokenProportion(IBancorNetwork _bancor, address[] _path, ERC20 _fromToken, uint256 _mul, uint256 _div) external {
-        uint256 amount = _fromToken.balanceOf(this).mul(_mul).div(_div);
-        if (_fromToken.allowance(this, _bancor) == 0) {
-            _fromToken.approve(_bancor, uint256(-1));
+    function bancorApproveTokenProportion(IBancorNetwork _bancor, address[] _path, uint256 _mul, uint256 _div) external {
+        uint256 amount = ERC20(_path[0]).balanceOf(this).mul(_mul).div(_div);
+        if (ERC20(_path[0]).allowance(this, _bancor) == 0) {
+            ERC20(_path[0]).approve(_bancor, uint256(-1));
         }
         _bancor.claimAndConvert(_path, amount, 1);
     }
 
-    function bancorTransferTokenAmount(IBancorNetwork _bancor, address[] _path, ERC20 _fromToken, uint256 _amount) external {
-        _fromToken.transfer(_bancor, _amount);
+    function bancorTransferTokenAmount(IBancorNetwork _bancor, address[] _path, uint256 _amount) external {
+        ERC20(_path[0]).transfer(_bancor, _amount);
         _bancor.convert(_path, _amount, 1);
     }
 
-    function bancorTransferTokenProportion(IBancorNetwork _bancor, address[] _path, ERC20 _fromToken, uint256 _mul, uint256 _div) external {
-        uint256 amount = _fromToken.balanceOf(this).mul(_mul).div(_div);
-        _fromToken.transfer(_bancor, amount);
+    function bancorTransferTokenProportion(IBancorNetwork _bancor, address[] _path, uint256 _mul, uint256 _div) external {
+        uint256 amount = ERC20(_path[0]).balanceOf(this).mul(_mul).div(_div);
+        ERC20(_path[0]).transfer(_bancor, amount);
         _bancor.convert(_path, amount, 1);
     }
 
@@ -160,12 +169,25 @@ contract MultiChanger is CanReclaimToken {
         _bancor.convert(_path, _amount, 1);
     }
 
-    function bancorAlreadyTransferedTokenProportion(IBancorNetwork _bancor, address[] _path, ERC20 _fromToken, uint256 _mul, uint256 _div) external {
-        uint256 amount = _fromToken.balanceOf(_bancor).mul(_mul).div(_div);
+    function bancorAlreadyTransferedTokenProportion(IBancorNetwork _bancor, address[] _path, uint256 _mul, uint256 _div) external {
+        uint256 amount = ERC20(_path[0]).balanceOf(_bancor).mul(_mul).div(_div);
         _bancor.convert(_path, amount, 1);
     }
 
     // Kyber Network
+
+    function kyberSendEthProportion(IKyberNetworkProxy _kyber, ERC20 _fromToken, address _toToken, uint256 _mul, uint256 _div) external {
+        uint256 value = address(this).balance.mul(_mul).div(_div);
+        _kyber.trade.value(value)(
+            _fromToken,
+            value,
+            _toToken,
+            this,
+            1 << 255,
+            0,
+            0
+        );
+    }
 
     function kyberApproveTokenAmount(IKyberNetworkProxy _kyber, ERC20 _fromToken, address _toToken, uint256 _amount) external {
         if (_fromToken.allowance(this, _kyber) == 0) {
@@ -184,17 +206,6 @@ contract MultiChanger is CanReclaimToken {
 
     function kyberApproveTokenProportion(IKyberNetworkProxy _kyber, ERC20 _fromToken, address _toToken, uint256 _mul, uint256 _div) external {
         uint256 amount = _fromToken.balanceOf(this).mul(_mul).div(_div);
-        if (_fromToken.allowance(this, _kyber) == 0) {
-            _fromToken.approve(_kyber, uint256(-1));
-        }
-        _kyber.trade(
-            _fromToken,
-            amount,
-            _toToken,
-            this,
-            1 << 255,
-            0,
-            0
-        );
+        this.kyberApproveTokenAmount(_kyber, _fromToken, _toToken, amount);
     }
 }
