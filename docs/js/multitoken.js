@@ -167,6 +167,9 @@ async function connectToWeb3() {
 }
 
 async function sendTransaction(preTx, value, to) {
+    await preTx.send({ from: account, value: value });
+    return;
+
     // Get gas price
     const gasPriceJSON = (await $.getJSON('https://gasprice.poa.network/'));
     console.log('gasPriceJSON = ', gasPriceJSON);
@@ -176,7 +179,7 @@ async function sendTransaction(preTx, value, to) {
     console.log('gasPrice = ', gasPrice / 10**9);
 
     if (account) {
-        const tx = await preTx.send({ from: account, value: value, gasPrice: gasPrice });
+        const tx = await preTx.send({ from: account, value: value, gasPrice: gasPrice, gas: estimateGas });
         console.log(tx);
     } else {
         $('#tx_to').val(to);
@@ -364,6 +367,7 @@ window.addEventListener('load', async function() {
 
         let remainingValueWei = value;
         let remainingWeight = value;
+        let bougthTokens = {};
         for (let i = 0; i < allTokens.length; i++) {
             const tokenName = allTokensNames[i];
             if (tokenName == 'BNT' || !kyberTokens[tokenName]) {
@@ -382,18 +386,20 @@ window.addEventListener('load', async function() {
                 }
             }();
 
-            console.log('kyberApproveTokenAmount', tokenName, amount.toString());
-            const data = multiBuyerContract.methods.kyberApproveTokenAmount(
+            console.log('kyberSendEthProportion', tokenName, amount.toString());
+            const data = multiBuyerContract.methods.kyberSendEthProportion(
                 kyberNetworkProxyContract.options.address,
                 kyberTokens.ETH,
                 kyberTokens[tokenName],
-                amount
+                amount,
+                remainingValueWei
             ).encodeABI().substr(2);
             
             callDatas += data;
             starts.push(callDatas.length/2);
             remainingValueWei = remainingValueWei.sub(amount);
             remainingWeight -= allTokensWeights[i];
+            bougthTokens[tokenName] = true;
         }
         
         if (remainingWeight) {
@@ -410,11 +416,12 @@ window.addEventListener('load', async function() {
                 
                 callDatas += data;
                 starts.push(callDatas.length/2);
+                bougthTokens['BNT'] = true;
             }
 
             for (let i = 0; i < allTokens.length; i++) {
                 const tokenName = allTokensNames[i];
-                if (tokenName == 'BNT' || kyberTokens[tokenName]) {
+                if (bougthTokens[tokenName]) {
                     continue;
                 }
 
@@ -449,6 +456,7 @@ window.addEventListener('load', async function() {
                 starts.push(callDatas.length/2);
                 remainingValueWei = remainingValueWei.sub(remainingValueWei.mul(_mul).div(_div));
                 remainingWeight -= allTokensWeights[i];
+                bougthTokens[tokenName] = true;
             }
         }
 
@@ -516,6 +524,7 @@ window.addEventListener('load', async function() {
         
         let datas = '';
         const starts = [0];
+        const bougthTokens = {};
 
         // Kyber
         let kyberWeight = 0;
@@ -537,6 +546,7 @@ window.addEventListener('load', async function() {
             datas += data;
             starts.push(datas.length/2);
             kyberWeight += allTokensWeights[i];
+            bougthTokens[tokenName] = true;
         }
 
         console.log(bancorTokens);
@@ -545,7 +555,7 @@ window.addEventListener('load', async function() {
         let remainingWeight = allTokensWeightsSum - kyberWeight;
         for (let i = 0; i < allTokens.length; i++) {
             const tokenName = allTokensNames[i];
-            if (tokenName == 'BNT' || kyberTokens[tokenName] || !bancorTokens[tokenName]) {
+            if (bougthTokens[tokenName] || !bancorTokens[tokenName]) {
                 continue;
             }
 
@@ -565,6 +575,7 @@ window.addEventListener('load', async function() {
             datas += data;
             starts.push(datas.length/2);
             hasAtLeastOneBNT = true;
+            bougthTokens[tokenName] = true;
         }
 
         if (hasAtLeastOneBNT) {
