@@ -65,7 +65,7 @@ const bancorRelays = {
     'ESZ': '0xa2020e324c365d05e87cf25552e6e6734260b089'
 };
 
-async function getKyberPrices() {
+async function updateKyberTokens() {
     for (let token of Object.keys(kyberTokens)) {
         delete kyberTokens[token];
     }
@@ -74,13 +74,22 @@ async function getKyberPrices() {
     const json = await $.getJSON(`https://tracker.kyber.network/api/tokens/pairs`);
     const tokenPriceETH = {};
     for (let key of Object.keys(json)) {
-        tokenPriceETH[json[key].symbol] = web3js.utils.toBN(Math.trunc(json[key].currentPrice * 10**10));
         kyberTokens[json[key].symbol] = json[key].contractAddress;
+    }
+
+    console.log('Updated ' + Object.keys(kyberTokens).length + ' Kyber tokens');
+}
+
+async function getKyberPrices() {
+    const json = await $.getJSON(`https://tracker.kyber.network/api/tokens/pairs`);
+    const tokenPriceETH = {};
+    for (let key of Object.keys(json)) {
+        tokenPriceETH[json[key].symbol] = web3js.utils.toBN(Math.trunc(json[key].currentPrice * 10**10));
     }
     return tokenPriceETH;
 }
 
-async function getBancorPrices() {
+async function updateBancorTokensAndRelays() {
     for (let token of Object.keys(bancorTokens)) {
         delete bancorTokens[token];
     }
@@ -89,22 +98,7 @@ async function getBancorPrices() {
     }
 
     let skip = 0;
-    const tokenPriceETH = {};
-    while (Object.keys(tokenPriceETH).length % 100 == 0) {
-        const json = await $.getJSON(`https://api.bancor.network/0.1/currencies/tokens?limit=100&skip=${skip}&fromCurrencyCode=ETH&includeTotal=false&orderBy=liquidityDepth&sortOrder=desc`);
-        if (!json.data.currencies.page.length) {
-            break;
-        }
-
-        for (let object of json.data.currencies.page) {
-            tokenPriceETH[object.code] = web3js.utils.toBN(Math.trunc(object.price * 10**10));
-        }
-
-        skip += 100;
-    }
-
-    skip = 0;
-    while (Object.keys(bancorTokens).length % 100 == 0) {
+    while (true) {
         const json = await $.getJSON(`https://api.bancor.network/0.1/currencies?limit=100&skip=${skip}`);
         if (!json.data.currencies.page.length) {
             break;
@@ -118,6 +112,26 @@ async function getBancorPrices() {
                 const symbol = (object.details.subType == 'relay' && object.code.endsWith('BNT')) ? object.code.substr(0, object.code.length - 3) : object.code;
                 bancorRelays[symbol] = object.details.contractAddress;
             }
+        }
+
+        skip += 100;
+    }
+
+    console.log('Updated ' + Object.keys(bancorTokens).length + ' Bancor tokens');
+    console.log('Updated ' + Object.keys(bancorRelays).length + ' Bancor relays');
+}
+
+async function getBancorPrices() {
+    let skip = 0;
+    const tokenPriceETH = {};
+    while (Object.keys(tokenPriceETH).length % 100 == 0) {
+        const json = await $.getJSON(`https://api.bancor.network/0.1/currencies/tokens?limit=100&skip=${skip}&fromCurrencyCode=ETH&includeTotal=false&orderBy=liquidityDepth&sortOrder=desc`);
+        if (!json.data.currencies.page.length) {
+            break;
+        }
+
+        for (let object of json.data.currencies.page) {
+            tokenPriceETH[object.code] = web3js.utils.toBN(Math.trunc(object.price * 10**10));
         }
 
         skip += 100;
@@ -167,9 +181,6 @@ async function connectToWeb3() {
 }
 
 async function sendTransaction(preTx, value, to) {
-    await preTx.send({ from: account, value: value });
-    return;
-
     // Get gas price
     const gasPriceJSON = (await $.getJSON('https://gasprice.poa.network/'));
     console.log('gasPriceJSON = ', gasPriceJSON);
@@ -656,6 +667,7 @@ window.addEventListener('load', async function() {
     connectToWeb3();
     let _10 = web3js.utils.toBN(10**10);
     let _18 = web3js.utils.toBN(10**18);
-    getBancorPrices();
+    updateKyberTokens();
+    updateBancorTokensAndRelays();
     $('#multiTokenNetworkAddress').triggerHandler('input');
 });
