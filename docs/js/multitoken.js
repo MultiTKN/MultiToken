@@ -444,7 +444,7 @@ window.addEventListener('load', async function() {
                     bancorRelays[tokenName],
                     bancorTokens[tokenName]
                 ];
-                console.log('bancorApproveTokenProportion', tokenName, _mul.toString(), _div.toString());
+                console.log('bancorApproveTokenProportion', tokenName, path, _mul.toString(), _div.toString());
                 const data = multiBuyerContract.methods.bancorApproveTokenProportion(
                     bancorNetworkContract.options.address,
                     path,
