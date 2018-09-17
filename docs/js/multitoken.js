@@ -184,7 +184,7 @@ async function sendTransaction(preTx, value, to) {
     // Get gas price
     const gasPriceJSON = (await $.getJSON('https://gasprice.poa.network/'));
     console.log('gasPriceJSON = ', gasPriceJSON);
-    const estimateGas = await preTx.estimateGas({ from: account, value: value, gasPrice: gasPriceJSON.standard * 10**9 });
+    const estimateGas = await preTx.estimateGas({ from: account, value: value, gasPrice: Math.trunc(gasPriceJSON.standard * 10**9) });
     console.log('estimateGas = ', estimateGas);
     const gasPrice = Math.trunc((gasPriceJSON.standard + (gasPriceJSON.fast - gasPriceJSON.standard)*estimateGas/4000000) * 10**9);
     console.log('gasPrice = ', gasPrice / 10**9);
