@@ -5,6 +5,11 @@ import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-solidity/contracts/ownership/CanReclaimToken.sol";
 import "../interface/IMultiToken.sol";
 
+contract IEtherToken is ERC20 {
+    function deposit() public payable;
+    function withdraw(uint256 _amount) public;
+}
+
 contract IBancorNetwork {
     function convert(
         address[] _path,
@@ -111,6 +116,17 @@ contract MultiChanger is CanReclaimToken {
         uint256 amount = _fromToken.balanceOf(this).mul(_mul).div(_div);
         _fromToken.transfer(_target, amount);
         require(_target.call(_data));
+    }
+
+    // Ether token
+
+    function withdrawEtherTokenAmount(IEtherToken _etherToken, uint256 _amount) external {
+        _etherToken.withdraw(_amount);
+    }
+
+    function withdrawEtherTokenProportion(IEtherToken _etherToken, uint256 _mul, uint256 _div) external {
+        uint256 amount = _etherToken.balanceOf(this).mul(_mul).div(_div);
+        _etherToken.withdraw(amount);
     }
 
     // Bancor Network
