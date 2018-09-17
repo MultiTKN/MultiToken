@@ -560,8 +560,6 @@ window.addEventListener('load', async function() {
             bougthTokens[tokenName] = true;
         }
 
-        console.log(bancorTokens);
-
         let hasAtLeastOneBNT = false;
         let remainingWeight = allTokensWeightsSum - kyberWeight;
         for (let i = 0; i < allTokens.length; i++) {
@@ -607,7 +605,6 @@ window.addEventListener('load', async function() {
             starts.push(callDatas.length/2);
         }
 
-        console.log(`sellForOrigin ${callDatas} ${starts}`);
         const sellData = multiSellerContract.methods.sellForOrigin(
             multitokenContract.options.address,
             multitokenAmount,
