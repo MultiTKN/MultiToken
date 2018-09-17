@@ -533,7 +533,7 @@ window.addEventListener('load', async function() {
         const kyberPriceETH = await getKyberPrices();
         const tokenPriceETH = Object.assign(kyberPriceETH, bancorPriceETH);
         
-        let datas = '';
+        let callDatas = '';
         const starts = [0];
         const bougthTokens = {};
 
@@ -545,7 +545,7 @@ window.addEventListener('load', async function() {
                 continue;
             }
 
-            console.log(`kyberApproveTokenProportion ${kyberTokens[tokenName]} => ETH 1/1`);
+            console.log(`kyberApproveTokenProportion ${tokenName} => ETH 1/1`);
             const data = multiSellerContract.methods.kyberApproveTokenProportion(
                 kyberNetworkProxyContract.options.address,
                 kyberTokens[tokenName],
@@ -554,8 +554,8 @@ window.addEventListener('load', async function() {
                 1
             ).encodeABI().substr(2);
 
-            datas += data;
-            starts.push(datas.length/2);
+            callDatas += data;
+            starts.push(callDatas.length/2);
             kyberWeight += allTokensWeights[i];
             bougthTokens[tokenName] = true;
         }
@@ -575,7 +575,7 @@ window.addEventListener('load', async function() {
                 bancorRelays[tokenName],
                 bancorTokens.BNT,
             ];
-            console.log(`bancorTransferTokenProportion ${bancorTokens[tokenName]} => BNT 1/1`);
+            console.log(`bancorTransferTokenProportion ${tokenName} => BNT 1/1`);
             const data = multiSellerContract.methods.bancorTransferTokenProportion(
                 bancorNetworkContract.options.address,
                 path,
@@ -583,8 +583,8 @@ window.addEventListener('load', async function() {
                 1
             ).encodeABI().substr(2);
             
-            datas += data;
-            starts.push(datas.length/2);
+            callDatas += data;
+            starts.push(callDatas.length/2);
             hasAtLeastOneBNT = true;
             bougthTokens[tokenName] = true;
         }
@@ -603,14 +603,15 @@ window.addEventListener('load', async function() {
                 1
             ).encodeABI().substr(2);
 
-            datas += data;
-            starts.push(datas.length/2);
+            callDatas += data;
+            starts.push(callDatas.length/2);
         }
 
+        console.log(`sellForOrigin ${callDatas} ${starts}`);
         const sellData = multiSellerContract.methods.sellForOrigin(
             multitokenContract.options.address,
             multitokenAmount,
-            '0x' + datas,
+            '0x' + callDatas,
             starts
         ).encodeABI();
 
