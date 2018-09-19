@@ -12,7 +12,6 @@ contract BasicMultiToken is Ownable, StandardToken, DetailedERC20, ERC1003Token,
     using CheckedERC20 for ERC20;
     using CheckedERC20 for DetailedERC20;
 
-    ERC20[] public tokens;
     uint internal inLendingMode;
     bool public bundlingDenied;
 
@@ -128,16 +127,5 @@ contract BasicMultiToken is Ownable, StandardToken, DetailedERC20, ERC1003Token,
 
     function tokensCount() public view returns(uint) {
         return tokens.length;
-    }
-
-    function tokens(uint _index) public view returns(ERC20) {
-        return tokens[_index];
-    }
-
-    function allTokens() public view returns(address[] _tokens) {
-        _tokens = new address[](tokens.length);
-        for (uint i = 0; i < _tokens.length; i++) {
-            _tokens[i] = tokens[i];
-        }
     }
 }
