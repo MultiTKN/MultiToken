@@ -21,7 +21,7 @@ contract MultiBuyer is MultiChanger {
         for (uint i = _mtkn.tokensCount(); i > 0; i--) {
             ERC20 token = _mtkn.tokens(i - 1);
             if (token.allowance(this, _mtkn) == 0) {
-                token.approve(_mtkn, uint256(-1));
+                token.asmApprove(_mtkn, uint256(-1));
             }
 
             uint256 amount = mtknTotalSupply.mul(token.balanceOf(this)).div(token.balanceOf(_mtkn));
@@ -37,7 +37,7 @@ contract MultiBuyer is MultiChanger {
         }
         for (i = _mtkn.tokensCount(); i > 0; i--) {
             token = _mtkn.tokens(i - 1);
-            token.transfer(msg.sender, token.balanceOf(this));
+            token.asmTransfer(msg.sender, token.balanceOf(this));
         }
     }
 
@@ -57,7 +57,7 @@ contract MultiBuyer is MultiChanger {
             ERC20 token = _mtkn.tokens(i);
             amounts[i] = token.balanceOf(this);
             if (token.allowance(this, _mtkn) == 0) {
-                token.approve(_mtkn, uint256(-1));
+                token.asmApprove(_mtkn, uint256(-1));
             }
         }
 
@@ -67,7 +67,7 @@ contract MultiBuyer is MultiChanger {
         }
         for (i = _mtkn.tokensCount(); i > 0; i--) {
             token = _mtkn.tokens(i - 1);
-            token.transfer(msg.sender, token.balanceOf(this));
+            token.asmTransfer(msg.sender, token.balanceOf(this));
         }
     }
 }

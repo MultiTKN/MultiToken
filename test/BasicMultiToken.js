@@ -12,10 +12,14 @@ const should = require('chai')
 import EVMRevert from './helpers/EVMRevert';
 import EVMThrow from './helpers/EVMThrow';
 
+const CheckedERC20 = artifacts.require('CheckedERC20.sol');
+
 const Token = artifacts.require('Token.sol');
+const BadToken = artifacts.require('BadToken.sol');
 const BrokenTransferToken = artifacts.require('BrokenTransferToken.sol');
 const BrokenTransferFromToken = artifacts.require('BrokenTransferFromToken.sol');
 const BasicMultiToken = artifacts.require('BasicMultiToken.sol');
+const MultiTokenInfo = artifacts.require('MultiTokenInfo.sol');
 
 contract('BasicMultiToken', function ([_, wallet1, wallet2, wallet3, wallet4, wallet5]) {
 
@@ -23,6 +27,15 @@ contract('BasicMultiToken', function ([_, wallet1, wallet2, wallet3, wallet4, wa
     let xyz;
     let lmn;
     let multi;
+    let info;
+
+    before(async function () {
+        const checkedERC20 = await CheckedERC20.new();
+        BasicMultiToken.link('CheckedERC20', checkedERC20.address);
+        MultiTokenInfo.link('CheckedERC20', checkedERC20.address);
+
+        info = await MultiTokenInfo.new();
+    });
 
     beforeEach(async function() {
         abc = await Token.new("ABC");
@@ -30,7 +43,7 @@ contract('BasicMultiToken', function ([_, wallet1, wallet2, wallet3, wallet4, wa
         await abc.mint(wallet1, 50e6);
         await abc.mint(wallet2, 50e6);
 
-        xyz = await Token.new("XYZ");
+        xyz = await BadToken.new("BadToken", "XYZ", 18);
         await xyz.mint(_, 500e6);
         await xyz.mint(wallet1, 50e6);
         await xyz.mint(wallet2, 50e6);
@@ -65,6 +78,40 @@ contract('BasicMultiToken', function ([_, wallet1, wallet2, wallet3, wallet4, wa
         ]);
     });
 
+    it('should provide working method allNames', async function() {
+        const multi = await BasicMultiToken.new();
+        await multi.init([abc.address, xyz.address], "Multi", "1ABC_1XYZ", 18);
+        (await info.allNames.call(multi.address)).map(web3.toUtf8).should.be.deep.equal([
+            "Token",
+            "BadToken",
+        ]);
+
+        const multi2 = await BasicMultiToken.new();
+        await multi2.init([abc.address, xyz.address, lmn.address], "Multi", "1ABC_1XYZ_1LMN", 18);
+        (await info.allNames.call(multi2.address)).map(web3.toUtf8).should.be.deep.equal([
+            "Token",
+            "BadToken",
+            "Token",
+        ]);
+    });
+
+    it('should provide working method allSymbols', async function() {
+        const multi = await BasicMultiToken.new();
+        await multi.init([abc.address, xyz.address], "Multi", "1ABC_1XYZ", 18);
+        (await info.allSymbols.call(multi.address)).map(web3.toUtf8).should.be.deep.equal([
+            "ABC",
+            "XYZ",
+        ]);
+
+        const multi2 = await BasicMultiToken.new();
+        await multi2.init([abc.address, xyz.address, lmn.address], "Multi", "1ABC_1XYZ_1LMN", 18);
+        (await info.allSymbols.call(multi2.address)).map(web3.toUtf8).should.be.deep.equal([
+            "ABC",
+            "XYZ",
+            "LMN",
+        ]);
+    });
+
     it('should provide working method allBalances', async function() {
         const multi = await BasicMultiToken.new();
         await multi.init([abc.address, xyz.address], "Multi", "1ABC_1XYZ", 18);
@@ -72,9 +119,9 @@ contract('BasicMultiToken', function ([_, wallet1, wallet2, wallet3, wallet4, wa
         await xyz.approve(multi.address, 500e6);
         await multi.bundleFirstTokens(_, 1000, [1000e6, 500e6]);
 
-        (await multi.allBalances.call()).should.be.deep.equal([
-            new BigNumber(1000e6),
-            new BigNumber(500e6),
+        (await info.allBalances.call(multi.address)).map(bn => bn.toString()).should.be.deep.equal([
+            "1000000000",
+            "500000000",
         ]);
     });
 

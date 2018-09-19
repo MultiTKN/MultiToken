@@ -73,10 +73,4 @@ contract MultiToken is IMultiToken, BasicMultiToken {
             _weights[i] = weights[tokens[i]];
         }
     }
-
-    function allTokensDecimalsBalancesWeights() public view returns(ERC20[] _tokens, uint8[] _decimals, uint256[] _balances, uint256[] _weights) {
-        (_tokens, _decimals, _balances) = allTokensDecimalsBalances();
-        _weights = allWeights();
-    }
-
 }

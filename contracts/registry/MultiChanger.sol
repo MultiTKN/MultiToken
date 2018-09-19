@@ -4,6 +4,7 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-solidity/contracts/ownership/CanReclaimToken.sol";
 import "../interface/IMultiToken.sol";
+import "../ext/CheckedERC20.sol";
 
 contract IEtherToken is ERC20 {
     function deposit() public payable;
@@ -48,6 +49,7 @@ contract IKyberNetworkProxy {
 
 contract MultiChanger is CanReclaimToken {
     using SafeMath for uint256;
+    using CheckedERC20 for ERC20;
 
     // Source: https://github.com/gnosis/MultiSigWallet/blob/master/contracts/MultiSigWallet.sol
     // call has been separated into its own function in order to take advantage
@@ -92,29 +94,29 @@ contract MultiChanger is CanReclaimToken {
 
     function approveTokenAmount(address _target, bytes _data, ERC20 _fromToken, uint256 _amount) external {
         if (_fromToken.allowance(this, _target) != 0) {
-            _fromToken.approve(_target, 0);
+            _fromToken.asmApprove(_target, 0);
         }
-        _fromToken.approve(_target, _amount);
+        _fromToken.asmApprove(_target, _amount);
         require(_target.call(_data));
     }
 
     function approveTokenProportion(address _target, bytes _data, ERC20 _fromToken, uint256 _mul, uint256 _div) external {
         uint256 amount = _fromToken.balanceOf(this).mul(_mul).div(_div);
         if (_fromToken.allowance(this, _target) != 0) {
-            _fromToken.approve(_target, 0);
+            _fromToken.asmApprove(_target, 0);
         }
-        _fromToken.approve(_target, amount);
+        _fromToken.asmApprove(_target, amount);
         require(_target.call(_data));
     }
 
     function transferTokenAmount(address _target, bytes _data, ERC20 _fromToken, uint256 _amount) external {
-        _fromToken.transfer(_target, _amount);
+        _fromToken.asmTransfer(_target, _amount);
         require(_target.call(_data));
     }
 
     function transferTokenProportion(address _target, bytes _data, ERC20 _fromToken, uint256 _mul, uint256 _div) external {
         uint256 amount = _fromToken.balanceOf(this).mul(_mul).div(_div);
-        _fromToken.transfer(_target, amount);
+        _fromToken.asmTransfer(_target, amount);
         require(_target.call(_data));
     }
 
@@ -142,7 +144,7 @@ contract MultiChanger is CanReclaimToken {
 
     function bancorApproveTokenAmount(IBancorNetwork _bancor, address[] _path, uint256 _amount) external {
         if (ERC20(_path[0]).allowance(this, _bancor) == 0) {
-            ERC20(_path[0]).approve(_bancor, uint256(-1));
+            ERC20(_path[0]).asmApprove(_bancor, uint256(-1));
         }
         _bancor.claimAndConvert(_path, _amount, 1);
     }
@@ -150,19 +152,19 @@ contract MultiChanger is CanReclaimToken {
     function bancorApproveTokenProportion(IBancorNetwork _bancor, address[] _path, uint256 _mul, uint256 _div) external {
         uint256 amount = ERC20(_path[0]).balanceOf(this).mul(_mul).div(_div);
         if (ERC20(_path[0]).allowance(this, _bancor) == 0) {
-            ERC20(_path[0]).approve(_bancor, uint256(-1));
+            ERC20(_path[0]).asmApprove(_bancor, uint256(-1));
         }
         _bancor.claimAndConvert(_path, amount, 1);
     }
 
     function bancorTransferTokenAmount(IBancorNetwork _bancor, address[] _path, uint256 _amount) external {
-        ERC20(_path[0]).transfer(_bancor, _amount);
+        ERC20(_path[0]).asmTransfer(_bancor, _amount);
         _bancor.convert(_path, _amount, 1);
     }
 
     function bancorTransferTokenProportion(IBancorNetwork _bancor, address[] _path, uint256 _mul, uint256 _div) external {
         uint256 amount = ERC20(_path[0]).balanceOf(this).mul(_mul).div(_div);
-        ERC20(_path[0]).transfer(_bancor, amount);
+        ERC20(_path[0]).asmTransfer(_bancor, amount);
         _bancor.convert(_path, amount, 1);
     }
 
@@ -192,7 +194,7 @@ contract MultiChanger is CanReclaimToken {
 
     function kyberApproveTokenAmount(IKyberNetworkProxy _kyber, ERC20 _fromToken, address _toToken, uint256 _amount) external {
         if (_fromToken.allowance(this, _kyber) == 0) {
-            _fromToken.approve(_kyber, uint256(-1));
+            _fromToken.asmApprove(_kyber, uint256(-1));
         }
         _kyber.trade(
             _fromToken,
