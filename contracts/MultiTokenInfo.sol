@@ -12,14 +12,17 @@ contract MultiTokenInfo is IMultiTokenInfo {
 
     // BasicMultiToken
 
-    function allTokens(IBasicMultiToken _mtkn) public view returns(address[] _tokens) {
-        _tokens = _mtkn.allTokens();
+    function allTokens(IBasicMultiToken _mtkn) public view returns(ERC20[] _tokens) {
+        _tokens = new ERC20[](_mtkn.tokensCount());
+        for (uint i = 0; i < _tokens.length; i++) {
+            _tokens[i] = _mtkn.tokens(i);
+        }
     }
 
     function allBalances(IBasicMultiToken _mtkn) public view returns(uint256[] _balances) {
         _balances = new uint256[](_mtkn.tokensCount());
         for (uint i = 0; i < _balances.length; i++) {
-            _balances[i] = ERC20(_mtkn.tokens(i)).balanceOf(_mtkn);
+            _balances[i] = _mtkn.tokens(i).balanceOf(_mtkn);
         }
     }
 
@@ -45,7 +48,7 @@ contract MultiTokenInfo is IMultiTokenInfo {
     }
 
     function allTokensBalancesDecimalsNamesSymbols(IBasicMultiToken _mtkn) public view returns(
-        address[] _tokens,
+        ERC20[] _tokens,
         uint256[] _balances,
         uint8[] _decimals,
         bytes32[] _names,
@@ -61,11 +64,14 @@ contract MultiTokenInfo is IMultiTokenInfo {
     // MultiToken
 
     function allWeights(IMultiToken _mtkn) public view returns(uint256[] _weights) {
-        _weights = _mtkn.allWeights();
+        _weights = new uint256[](_mtkn.tokensCount());
+        for (uint i = 0; i < _weights.length; i++) {
+            _weights[i] = _mtkn.weights(_mtkn.tokens(i));
+        }
     }
 
     function allTokensBalancesDecimalsNamesSymbolsWeights(IMultiToken _mtkn) public view returns(
-        address[] _tokens,
+        ERC20[] _tokens,
         uint256[] _balances,
         uint8[] _decimals,
         bytes32[] _names,
@@ -73,6 +79,6 @@ contract MultiTokenInfo is IMultiTokenInfo {
         uint256[] _weights
     ) {
         (_tokens, _balances, _decimals, _names, _symbols) = allTokensBalancesDecimalsNamesSymbols(_mtkn);
-        _weights = _mtkn.allWeights();
+        _weights = allWeights(_mtkn);
     }
 }

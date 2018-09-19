@@ -5,7 +5,7 @@ import "./IMultiToken.sol";
 
 
 contract IMultiTokenInfo {
-    function allTokens(IBasicMultiToken _mtkn) public view returns(address[] _tokens);
+    function allTokens(IBasicMultiToken _mtkn) public view returns(ERC20[] _tokens);
 
     function allBalances(IBasicMultiToken _mtkn) public view returns(uint256[] _balances);
 
@@ -16,7 +16,7 @@ contract IMultiTokenInfo {
     function allSymbols(IBasicMultiToken _mtkn) public view returns(bytes32[] _symbols);
 
     function allTokensBalancesDecimalsNamesSymbols(IBasicMultiToken _mtkn) public view returns(
-        address[] _tokens,
+        ERC20[] _tokens,
         uint256[] _balances,
         uint8[] _decimals,
         bytes32[] _names,
@@ -28,7 +28,7 @@ contract IMultiTokenInfo {
     function allWeights(IMultiToken _mtkn) public view returns(uint256[] _weights);
 
     function allTokensBalancesDecimalsNamesSymbolsWeights(IMultiToken _mtkn) public view returns(
-        address[] _tokens,
+        ERC20[] _tokens,
         uint256[] _balances,
         uint8[] _decimals,
         bytes32[] _names,

@@ -13,7 +13,7 @@ library CheckedERC20 {
         }
     }
 
-    function handleReturnBool() internal view returns(bool result) {
+    function handleReturnBool() internal pure returns(bool result) {
         assembly {
             switch returndatasize()
             case 0 { // not a std erc20
@@ -29,7 +29,7 @@ library CheckedERC20 {
         }
     }
 
-    function handleReturnBytes32() internal view returns(bytes32 result) {
+    function handleReturnBytes32() internal pure returns(bytes32 result) {
         assembly {
             if eq(returndatasize(), 32) { // not a std erc20
                 returndatacopy(0, 0, 32)
@@ -85,13 +85,15 @@ library CheckedERC20 {
 
     function asmName(address _token) public view returns(bytes32) {
         require(isContract(_token));
-        require(_token.call(bytes4(keccak256("name()"))));
+        // _token.name()
+        require(_token.call(0x06fdde03));
         return handleReturnBytes32();
     }
 
     function asmSymbol(address _token) public view returns(bytes32) {
         require(isContract(_token));
-        require(_token.call(bytes4(keccak256("symbol()"))));
+        // _token.symbol()
+        require(_token.call(0x95d89b41));
         return handleReturnBytes32();
     }
 }

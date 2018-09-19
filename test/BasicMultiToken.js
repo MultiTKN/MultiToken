@@ -64,14 +64,14 @@ contract('BasicMultiToken', function ([_, wallet1, wallet2, wallet3, wallet4, wa
     it('should provide working method allTokens', async function() {
         const multi = await BasicMultiToken.new();
         await multi.init([abc.address, xyz.address], "Multi", "1ABC_1XYZ", 18);
-        (await multi.allTokens.call()).should.be.deep.equal([
+        (await info.allTokens.call(multi.address)).should.be.deep.equal([
             abc.address,
             xyz.address,
         ]);
 
         const multi2 = await BasicMultiToken.new();
         await multi2.init([abc.address, xyz.address, lmn.address], "Multi", "1ABC_1XYZ_1LMN", 18);
-        (await multi2.allTokens.call()).should.be.deep.equal([
+        (await info.allTokens.call(multi2.address)).should.be.deep.equal([
             abc.address,
             xyz.address,
             lmn.address,
