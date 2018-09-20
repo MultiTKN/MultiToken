@@ -9,7 +9,6 @@ contract MultiToken is IMultiToken, BasicMultiToken {
     using CheckedERC20 for ERC20;
 
     uint256 internal minimalWeight;
-    mapping(address => uint256) public weights;
     bool public changesDenied;
 
     event ChangesDenied();
@@ -64,19 +63,4 @@ contract MultiToken is IMultiToken, BasicMultiToken {
         changesDenied = true;
         emit ChangesDenied();
     }
-
-    // Public Getters
-
-    function allWeights() public view returns(uint256[] _weights) {
-        _weights = new uint256[](tokens.length);
-        for (uint i = 0; i < tokens.length; i++) {
-            _weights[i] = weights[tokens[i]];
-        }
-    }
-
-    function allTokensDecimalsBalancesWeights() public view returns(ERC20[] _tokens, uint8[] _decimals, uint256[] _balances, uint256[] _weights) {
-        (_tokens, _decimals, _balances) = allTokensDecimalsBalances();
-        _weights = allWeights();
-    }
-
 }

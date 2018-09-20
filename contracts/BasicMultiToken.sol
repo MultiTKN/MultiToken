@@ -10,8 +10,8 @@ import "./interface/IBasicMultiToken.sol";
 
 contract BasicMultiToken is Ownable, StandardToken, DetailedERC20, ERC1003Token, IBasicMultiToken {
     using CheckedERC20 for ERC20;
+    using CheckedERC20 for DetailedERC20;
 
-    ERC20[] public tokens;
     uint internal inLendingMode;
     bool public bundlingDenied;
 
@@ -116,7 +116,7 @@ contract BasicMultiToken is Ownable, StandardToken, DetailedERC20, ERC1003Token,
 
     function lend(address _to, ERC20 _token, uint256 _amount, address _target, bytes _data) public payable {
         uint256 prevBalance = _token.balanceOf(this);
-        _token.transfer(_to, _amount);
+        _token.asmTransfer(_to, _amount);
         inLendingMode += 1;
         require(caller_.makeCall.value(msg.value)(_target, _data), "lend: arbitrary call failed");
         inLendingMode -= 1;
@@ -127,33 +127,5 @@ contract BasicMultiToken is Ownable, StandardToken, DetailedERC20, ERC1003Token,
 
     function tokensCount() public view returns(uint) {
         return tokens.length;
-    }
-
-    function tokens(uint _index) public view returns(ERC20) {
-        return tokens[_index];
-    }
-
-    function allTokens() public view returns(ERC20[] _tokens) {
-        _tokens = tokens;
-    }
-
-    function allBalances() public view returns(uint256[] _balances) {
-        _balances = new uint256[](tokens.length);
-        for (uint i = 0; i < tokens.length; i++) {
-            _balances[i] = tokens[i].balanceOf(this);
-        }
-    }
-
-    function allDecimals() public view returns(uint8[] _decimals) {
-        _decimals = new uint8[](tokens.length);
-        for (uint i = 0; i < tokens.length; i++) {
-            _decimals[i] = DetailedERC20(tokens[i]).decimals();
-        }
-    }
-
-    function allTokensDecimalsBalances() public view returns(ERC20[] _tokens, uint8[] _decimals, uint256[] _balances) {
-        _tokens = allTokens();
-        _decimals = allDecimals();
-        _balances = allBalances();
     }
 }

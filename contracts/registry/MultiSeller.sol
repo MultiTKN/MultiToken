@@ -8,7 +8,6 @@ import "./MultiChanger.sol";
 
 
 contract MultiSeller is MultiChanger {
-    using CheckedERC20 for ERC20;
     using CheckedERC20 for IMultiToken;
 
     function() public payable {
@@ -41,7 +40,7 @@ contract MultiSeller is MultiChanger {
     )
         public
     {
-        _mtkn.transferFrom(msg.sender, this, _amount);
+        _mtkn.asmTransferFrom(msg.sender, this, _amount);
         _mtkn.unbundle(this, _amount);
         change(_callDatas, _starts);
         _for.transfer(address(this).balance);

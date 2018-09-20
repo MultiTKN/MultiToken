@@ -12,6 +12,7 @@ const should = require('chai')
 import EVMRevert from './helpers/EVMRevert';
 
 const Token = artifacts.require('Token.sol');
+const BadToken = artifacts.require('BadToken.sol');
 const MultiToken = artifacts.require('MultiToken.sol');
 
 contract('MultiToken', function ([_, wallet1, wallet2, wallet3, wallet4, wallet5]) {
@@ -26,7 +27,7 @@ contract('MultiToken', function ([_, wallet1, wallet2, wallet3, wallet4, wallet5
         await abc.mint(_, 1000e6);
         await abc.mint(wallet1, 50e6);
 
-        xyz = await Token.new("XYZ");
+        xyz = await BadToken.new("BadToken", "XYZ", 18);
         await xyz.mint(_, 500e6);
         await xyz.mint(wallet2, 50e6);
 
