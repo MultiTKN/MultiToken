@@ -9,12 +9,12 @@ contract MultiToken is IMultiToken, BasicMultiToken {
     using CheckedERC20 for ERC20;
 
     uint256 internal minimalWeight;
-    bool public isChangesEnabled = true;
+    bool public changesEnabled = true;
 
     event ChangesDisabled();
 
-    modifier changesEnabled {
-        require(isChangesEnabled, "Operation can't be performed because changes are disabled");
+    modifier whenChangesEnabled {
+        require(changesEnabled, "Operation can't be performed because changes are disabled");
         _;
     }
 
@@ -45,7 +45,7 @@ contract MultiToken is IMultiToken, BasicMultiToken {
         }
     }
 
-    function change(address _fromToken, address _toToken, uint256 _amount, uint256 _minReturn) public changesEnabled notInLendingMode returns(uint256 returnAmount) {
+    function change(address _fromToken, address _toToken, uint256 _amount, uint256 _minReturn) public whenChangesEnabled notInLendingMode returns(uint256 returnAmount) {
         returnAmount = getReturn(_fromToken, _toToken, _amount);
         require(returnAmount > 0, "The return amount is zero");
         require(returnAmount >= _minReturn, "The return amount is less than _minReturn value");
@@ -59,8 +59,8 @@ contract MultiToken is IMultiToken, BasicMultiToken {
     // Admin methods
 
     function disableChanges() public onlyOwner {
-        require(isChangesEnabled, "Changes are already disabled");
-        isChangesEnabled = false;
+        require(changesEnabled, "Changes are already disabled");
+        changesEnabled = false;
         emit ChangesDisabled();
     }
 }

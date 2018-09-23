@@ -13,7 +13,7 @@ contract BasicMultiToken is Ownable, StandardToken, DetailedERC20, ERC1003Token,
     using CheckedERC20 for DetailedERC20;
 
     uint internal inLendingMode;
-    bool public isBundlingEnabled = true;
+    bool public bundlingEnabled = true;
 
     event Bundle(address indexed who, address indexed beneficiary, uint256 value);
     event Unbundle(address indexed who, address indexed beneficiary, uint256 value);
@@ -24,8 +24,8 @@ contract BasicMultiToken is Ownable, StandardToken, DetailedERC20, ERC1003Token,
         _;
     }
 
-    modifier bundlingEnabled {
-        require(isBundlingEnabled, "Bundling is disabled");
+    modifier whenBundlingEnabled {
+        require(bundlingEnabled, "Bundling is disabled");
         _;
     }
 
@@ -49,12 +49,12 @@ contract BasicMultiToken is Ownable, StandardToken, DetailedERC20, ERC1003Token,
         return tokens.length;
     }
 
-    function bundleFirstTokens(address _beneficiary, uint256 _amount, uint256[] _tokenAmounts) public bundlingEnabled notInLendingMode {
+    function bundleFirstTokens(address _beneficiary, uint256 _amount, uint256[] _tokenAmounts) public whenBundlingEnabled notInLendingMode {
         require(totalSupply_ == 0, "bundleFirstTokens: This method can be used with zero total supply only");
         _bundle(_beneficiary, _amount, _tokenAmounts);
     }
 
-    function bundle(address _beneficiary, uint256 _amount) public bundlingEnabled notInLendingMode {
+    function bundle(address _beneficiary, uint256 _amount) public whenBundlingEnabled notInLendingMode {
         require(totalSupply_ != 0, "This method can be used with non zero total supply only");
         uint256[] memory tokenAmounts = new uint256[](tokens.length);
         for (uint i = 0; i < tokens.length; i++) {
@@ -88,14 +88,14 @@ contract BasicMultiToken is Ownable, StandardToken, DetailedERC20, ERC1003Token,
     // Admin methods
 
     function disableBundling() public onlyOwner {
-        require(isBundlingEnabled, "Bundling is already disabled");
-        isBundlingEnabled = false;
+        require(bundlingEnabled, "Bundling is already disabled");
+        bundlingEnabled = false;
         emit BundlingStatus(false);
     }
 
     function enableBundling() public onlyOwner {
-        require(!isBundlingEnabled, "Bundling is already enabled");
-        isBundlingEnabled = true;
+        require(!bundlingEnabled, "Bundling is already enabled");
+        bundlingEnabled = true;
         emit BundlingStatus(true);
     }
 
