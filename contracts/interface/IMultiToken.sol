@@ -12,5 +12,5 @@ contract IMultiToken is IBasicMultiToken {
     function getReturn(address _fromToken, address _toToken, uint256 _amount) public view returns (uint256 returnAmount);
     function change(address _fromToken, address _toToken, uint256 _amount, uint256 _minReturn) public returns (uint256 returnAmount);
 
-    function denyChanges() public;
+    function disableChanges() public;
 }

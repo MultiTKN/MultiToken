@@ -13,11 +13,11 @@ contract BasicMultiToken is Ownable, StandardToken, DetailedERC20, ERC1003Token,
     using CheckedERC20 for DetailedERC20;
 
     uint internal inLendingMode;
-    bool public bundlingDenied;
+    bool public isBundlingEnabled = true;
 
     event Bundle(address indexed who, address indexed beneficiary, uint256 value);
     event Unbundle(address indexed who, address indexed beneficiary, uint256 value);
-    event BundlingDenied(bool denied);
+    event BundlingStatus(bool enabled);
 
     modifier notInLendingMode {
         require(inLendingMode == 0, "Operation can't be performed while lending");
@@ -25,7 +25,7 @@ contract BasicMultiToken is Ownable, StandardToken, DetailedERC20, ERC1003Token,
     }
 
     modifier bundlingEnabled {
-        require(!bundlingDenied, "Operation can't be performed because bundling is denied");
+        require(isBundlingEnabled, "Bundling is disabled");
         _;
     }
 
@@ -87,16 +87,16 @@ contract BasicMultiToken is Ownable, StandardToken, DetailedERC20, ERC1003Token,
 
     // Admin methods
 
-    function denyBundling() public onlyOwner {
-        require(!bundlingDenied);
-        bundlingDenied = true;
-        emit BundlingDenied(true);
+    function disableBundling() public onlyOwner {
+        require(isBundlingEnabled, "Bundling is already disabled");
+        isBundlingEnabled = false;
+        emit BundlingStatus(false);
     }
 
-    function allowBundling() public onlyOwner {
-        require(bundlingDenied);
-        bundlingDenied = false;
-        emit BundlingDenied(false);
+    function enableBundling() public onlyOwner {
+        require(!isBundlingEnabled, "Bundling is already enabled");
+        isBundlingEnabled = true;
+        emit BundlingStatus(true);
     }
 
     // Internal methods
