@@ -11,6 +11,7 @@ contract MultiSeller is MultiChanger {
     using CheckedERC20 for IMultiToken;
 
     function() public payable {
+        // solium-disable-next-line security/no-tx-origin
         require(tx.origin != msg.sender);
     }
 
@@ -27,7 +28,7 @@ contract MultiSeller is MultiChanger {
             _amount,
             _callDatas,
             _starts,
-            tx.origin
+            tx.origin   // solium-disable-line security/no-tx-origin
         );
     }
 

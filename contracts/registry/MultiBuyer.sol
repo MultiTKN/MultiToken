@@ -4,6 +4,7 @@ import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "../interface/IMultiToken.sol";
 import "./MultiChanger.sol";
 
+
 contract MultiBuyer is MultiChanger {
     function buy(
         IMultiToken _mtkn,

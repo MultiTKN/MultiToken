@@ -6,10 +6,12 @@ import "openzeppelin-solidity/contracts/ownership/CanReclaimToken.sol";
 import "../interface/IMultiToken.sol";
 import "../ext/CheckedERC20.sol";
 
+
 contract IEtherToken is ERC20 {
     function deposit() public payable;
     function withdraw(uint256 _amount) public;
 }
+
 
 contract IBancorNetwork {
     function convert(
@@ -30,6 +32,7 @@ contract IBancorNetwork {
         payable
         returns(uint256);
 }
+
 
 contract IKyberNetworkProxy {
     function trade(
@@ -55,6 +58,7 @@ contract MultiChanger is CanReclaimToken {
     // call has been separated into its own function in order to take advantage
     // of the Solidity's code generator to produce a loop that copies tx.data into memory.
     function externalCall(address destination, uint value, bytes data, uint dataOffset, uint dataLength) internal returns (bool result) {
+        // solium-disable-next-line security/no-inline-assembly
         assembly {
             let x := mload(0x40)   // "Allocate" memory for output (0x40 is where "free memory" pointer is stored by convention)
             let d := add(data, 32) // First 32 bytes are the padded length of data, so exclude that
@@ -84,11 +88,13 @@ contract MultiChanger is CanReclaimToken {
     }
 
     function sendEthValue(address _target, bytes _data, uint256 _value) external {
+        // solium-disable-next-line security/no-call-value
         require(_target.call.value(_value)(_data));
     }
 
     function sendEthProportion(address _target, bytes _data, uint256 _mul, uint256 _div) external {
         uint256 value = address(this).balance.mul(_mul).div(_div);
+        // solium-disable-next-line security/no-call-value
         require(_target.call.value(value)(_data));
     }
 
@@ -97,6 +103,7 @@ contract MultiChanger is CanReclaimToken {
             _fromToken.asmApprove(_target, 0);
         }
         _fromToken.asmApprove(_target, _amount);
+        // solium-disable-next-line security/no-low-level-calls
         require(_target.call(_data));
     }
 
@@ -106,17 +113,20 @@ contract MultiChanger is CanReclaimToken {
             _fromToken.asmApprove(_target, 0);
         }
         _fromToken.asmApprove(_target, amount);
+        // solium-disable-next-line security/no-low-level-calls
         require(_target.call(_data));
     }
 
     function transferTokenAmount(address _target, bytes _data, ERC20 _fromToken, uint256 _amount) external {
         _fromToken.asmTransfer(_target, _amount);
+        // solium-disable-next-line security/no-low-level-calls
         require(_target.call(_data));
     }
 
     function transferTokenProportion(address _target, bytes _data, ERC20 _fromToken, uint256 _mul, uint256 _div) external {
         uint256 amount = _fromToken.balanceOf(this).mul(_mul).div(_div);
         _fromToken.asmTransfer(_target, amount);
+        // solium-disable-next-line security/no-low-level-calls
         require(_target.call(_data));
     }
 

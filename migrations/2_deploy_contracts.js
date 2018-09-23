@@ -1,5 +1,5 @@
-//const MultiToken = artifacts.require("MultiToken");
+// const MultiToken = artifacts.require("MultiToken");
 
-module.exports = function(deployer) {
-    //deployer.deploy(MultiToken);
+module.exports = function (deployer) {
+    // deployer.deploy(MultiToken);
 };

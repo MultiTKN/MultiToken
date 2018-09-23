@@ -21,7 +21,7 @@ contract IMultiTokenInfo {
         uint8[] _decimals,
         bytes32[] _names,
         bytes32[] _symbols
-    );
+        );
 
     // MultiToken
 
@@ -34,5 +34,5 @@ contract IMultiTokenInfo {
         bytes32[] _names,
         bytes32[] _symbols,
         uint256[] _weights
-    );
+        );
 }

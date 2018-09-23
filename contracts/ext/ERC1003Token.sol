@@ -11,6 +11,7 @@ contract ERC1003Caller is Ownable {
     }
 }
 
+
 contract ERC1003Token is ERC20 {
     ERC1003Caller public caller_ = new ERC1003Caller();
     address[] internal sendersStack_;

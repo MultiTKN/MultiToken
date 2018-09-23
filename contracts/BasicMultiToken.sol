@@ -45,6 +45,10 @@ contract BasicMultiToken is Ownable, StandardToken, DetailedERC20, ERC1003Token,
         tokens = _tokens;
     }
 
+    function tokensCount() public view returns(uint) {
+        return tokens.length;
+    }
+
     function bundleFirstTokens(address _beneficiary, uint256 _amount, uint256[] _tokenAmounts) public bundlingEnabled notInLendingMode {
         require(totalSupply_ == 0, "bundleFirstTokens: This method can be used with zero total supply only");
         _bundle(_beneficiary, _amount, _tokenAmounts);
@@ -103,7 +107,7 @@ contract BasicMultiToken is Ownable, StandardToken, DetailedERC20, ERC1003Token,
 
         for (uint i = 0; i < tokens.length; i++) {
             require(_tokenAmounts[i] != 0, "Token amount should be non-zero");
-            tokens[i].checkedTransferFrom(msg.sender, this, _tokenAmounts[i]); // Can't use require because not all ERC20 tokens return bool
+            tokens[i].checkedTransferFrom(msg.sender, this, _tokenAmounts[i]);
         }
 
         totalSupply_ = totalSupply_.add(_amount);
@@ -121,11 +125,5 @@ contract BasicMultiToken is Ownable, StandardToken, DetailedERC20, ERC1003Token,
         require(caller_.makeCall.value(msg.value)(_target, _data), "lend: arbitrary call failed");
         inLendingMode -= 1;
         require(_token.balanceOf(this) >= prevBalance, "lend: lended token must be refilled");
-    }
-
-    // Public Getters
-
-    function tokensCount() public view returns(uint) {
-        return tokens.length;
     }
 }
