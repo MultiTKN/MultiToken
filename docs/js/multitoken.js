@@ -192,9 +192,9 @@ async function connectToWeb3() {
 }
 
 async function sendTransaction(preTx, value, to) {
-    //const tx = await preTx.send({ from: account, value: value });
-    //console.log(tx);
-    //return;
+    const tx = await preTx.send({ from: account, value: value });
+    console.log(tx);
+    return;
 
     // Get gas price
     const gasPriceJSON = (await $.getJSON('https://gasprice.poa.network/'));
