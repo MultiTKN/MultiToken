@@ -89,14 +89,14 @@ library CheckedERC20 {
 
     //
 
-    function asmName(address _token) public view returns(bytes32) {
+    function asmName(address _token) internal view returns(bytes32) {
         require(isContract(_token));
         // solium-disable-next-line security/no-low-level-calls
         require(_token.call(bytes4(keccak256("name()"))));
         return handleReturnBytes32();
     }
 
-    function asmSymbol(address _token) public view returns(bytes32) {
+    function asmSymbol(address _token) internal view returns(bytes32) {
         require(isContract(_token));
         // solium-disable-next-line security/no-low-level-calls
         require(_token.call(bytes4(keccak256("symbol()"))));

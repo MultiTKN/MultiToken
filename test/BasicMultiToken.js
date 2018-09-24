@@ -6,8 +6,6 @@ require('chai')
     .use(require('chai-bignumber')(web3.BigNumber))
     .should();
 
-const CheckedERC20 = artifacts.require('CheckedERC20.sol');
-
 const Token = artifacts.require('Token.sol');
 const BadToken = artifacts.require('BadToken.sol');
 const BrokenTransferToken = artifacts.require('BrokenTransferToken.sol');
@@ -19,11 +17,6 @@ contract('BasicMultiToken', function ([_, wallet1, wallet2, wallet3, wallet4, wa
     let xyz;
     let lmn;
     let multi;
-
-    before(async function () {
-        const checkedERC20 = await CheckedERC20.new();
-        BasicMultiToken.link('CheckedERC20', checkedERC20.address);
-    });
 
     beforeEach(async function () {
         abc = await Token.new('ABC');
