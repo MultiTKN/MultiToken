@@ -38,7 +38,9 @@ contract MultiBuyer is MultiChanger {
         }
         for (i = _mtkn.tokensCount(); i > 0; i--) {
             token = _mtkn.tokens(i - 1);
-            token.asmTransfer(msg.sender, token.balanceOf(this));
+            if (token.balanceOf(this) > 0) {
+                token.asmTransfer(msg.sender, token.balanceOf(this));
+            }
         }
     }
 
@@ -68,7 +70,9 @@ contract MultiBuyer is MultiChanger {
         }
         for (i = _mtkn.tokensCount(); i > 0; i--) {
             token = _mtkn.tokens(i - 1);
-            token.asmTransfer(msg.sender, token.balanceOf(this));
+            if (token.balanceOf(this) > 0) {
+                token.asmTransfer(msg.sender, token.balanceOf(this));
+            }
         }
     }
 }
