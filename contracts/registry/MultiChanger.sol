@@ -76,12 +76,7 @@ contract MultiChanger is CanReclaimToken {
         }
     }
 
-    function change(
-        bytes _callDatas,
-        uint[] _starts // including 0 and LENGTH values
-    )
-        internal
-    {
+    function change(bytes _callDatas, uint[] _starts) public { // _starts should include 0 and _callDatas.length
         for (uint i = 0; i < _starts.length - 1; i++) {
             require(externalCall(this, 0, _callDatas, _starts[i], _starts[i + 1] - _starts[i]));
         }
@@ -119,15 +114,29 @@ contract MultiChanger is CanReclaimToken {
 
     function transferTokenAmount(address _target, bytes _data, ERC20 _fromToken, uint256 _amount) external {
         _fromToken.asmTransfer(_target, _amount);
-        // solium-disable-next-line security/no-low-level-calls
-        require(_target.call(_data));
+        if (_target != address(0)) {
+            // solium-disable-next-line security/no-low-level-calls
+            require(_target.call(_data));
+        }
     }
 
     function transferTokenProportion(address _target, bytes _data, ERC20 _fromToken, uint256 _mul, uint256 _div) external {
         uint256 amount = _fromToken.balanceOf(this).mul(_mul).div(_div);
         _fromToken.asmTransfer(_target, amount);
-        // solium-disable-next-line security/no-low-level-calls
-        require(_target.call(_data));
+        if (_target != address(0)) {
+            // solium-disable-next-line security/no-low-level-calls
+            require(_target.call(_data));
+        }
+    }
+
+    // Multitoken
+
+    function multitokenChange(IMultiToken _mtkn, ERC20 _fromToken, ERC20 _toToken, uint256 _minReturn, uint256 _mul, uint256 _div) external {
+        uint256 amount = _fromToken.balanceOf(this).mul(_mul).div(_div);
+        if (_fromToken.allowance(this, _mtkn) == 0) {
+            _fromToken.asmApprove(_mtkn, uint256(-1));
+        }
+        _mtkn.change(_fromToken, _toToken, amount, _minReturn);
     }
 
     // Ether token
