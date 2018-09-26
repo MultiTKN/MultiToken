@@ -106,8 +106,10 @@ contract MultiBuyer is MultiChanger {
                 if (_throughToken.allowance(this, _exchanges[i]) == 0) {
                     _throughToken.asmApprove(_exchanges[i], uint256(-1));
                 }
+                // solium-disable-next-line security/no-low-level-calls
                 require(_exchanges[i].call(data), "buy: exchange arbitrary call failed");
             } else {
+                // solium-disable-next-line security/no-call-value
                 require(_exchanges[i].call.value(_values[i])(data), "buy: exchange arbitrary call failed");
             }
         }

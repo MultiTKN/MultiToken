@@ -67,7 +67,7 @@ contract MultiSeller is MultiChanger {
             _exchanges,
             _datas,
             _datasIndexes,
-            tx.origin
+            tx.origin       // solium-disable-line security/no-tx-origin
         );
     }
 
@@ -113,6 +113,7 @@ contract MultiSeller is MultiChanger {
                 }
                 token.asmApprove(_exchanges[i], token.balanceOf(this));
             }
+            // solium-disable-next-line security/no-low-level-calls
             require(_exchanges[i].call(data), "sell: exchange arbitrary call failed");
         }
 
