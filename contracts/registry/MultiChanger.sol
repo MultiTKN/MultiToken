@@ -76,7 +76,7 @@ contract MultiChanger is CanReclaimToken {
         }
     }
 
-    function change(bytes _callDatas, uint[] _starts) public { // _starts should include 0 and _callDatas.length
+    function change(bytes _callDatas, uint[] _starts) public payable { // _starts should include 0 and _callDatas.length
         for (uint i = 0; i < _starts.length - 1; i++) {
             require(externalCall(this, 0, _callDatas, _starts[i], _starts[i + 1] - _starts[i]));
         }
@@ -131,12 +131,16 @@ contract MultiChanger is CanReclaimToken {
 
     // Multitoken
 
-    function multitokenChange(IMultiToken _mtkn, ERC20 _fromToken, ERC20 _toToken, uint256 _minReturn, uint256 _mul, uint256 _div) external {
-        uint256 amount = _fromToken.balanceOf(this).mul(_mul).div(_div);
+    function multitokenChangeAmount(IMultiToken _mtkn, ERC20 _fromToken, ERC20 _toToken, uint256 _minReturn, uint256 _amount) external {
         if (_fromToken.allowance(this, _mtkn) == 0) {
             _fromToken.asmApprove(_mtkn, uint256(-1));
         }
-        _mtkn.change(_fromToken, _toToken, amount, _minReturn);
+        _mtkn.change(_fromToken, _toToken, _amount, _minReturn);
+    }
+
+    function multitokenChangeProportion(IMultiToken _mtkn, ERC20 _fromToken, ERC20 _toToken, uint256 _minReturn, uint256 _mul, uint256 _div) external {
+        uint256 amount = _fromToken.balanceOf(this).mul(_mul).div(_div);
+        this.multitokenChangeAmount(_mtkn, _fromToken, _toToken, _minReturn, amount);
     }
 
     // Ether token
