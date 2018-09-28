@@ -72,6 +72,20 @@
 						</div>
 					</div>
 					<div class="form-group">
+                        <div class="form-group">
+                            <label for="multitokenName">MultiToken name:</label>
+                            <input type="text" class="form-control" id="multitokenName" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="multitokenSymbol">MultiToken symbol:</label>
+                            <input type="text" class="form-control" id="multitokenSymbol" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="multitokenDecimals">MultiToken decimals:</label>
+                            <input type="text" class="form-control" id="multitokenDecimals" disabled>
+                        </div>
+
+                        <label for="tokens">MultiToken tokens:</label>
 						<table class="table" id="tokens">
 							<thead>
 								<tr>
@@ -131,13 +145,15 @@
                         <label for="new-multitoken-symbol">MultiToken symbol:</label>
                         <input type="text" class="form-control" id="new-multitoken-symbol" value="" placeholder="">
                     </div>
-                    <div class="form-group">
-                        <label for="new-multitoken-tokens">Tokens addressed:</label>
-                        <textarea class="form-control" rows="4" id="new-multitoken-tokens"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="new-multitoken-weights">Tokens integer weights:</label>
-                        <textarea class="form-control" rows="4" id="new-multitoken-weights"></textarea>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="new-multitoken-tokens">Tokens addressed (1 per line):</label>
+                            <textarea class="form-control" rows="4" id="new-multitoken-tokens"></textarea>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="new-multitoken-weights">Tokens integer weights (1 per line):</label>
+                            <textarea class="form-control" rows="4" id="new-multitoken-weights"></textarea>
+                        </div>
                     </div>
                     <button type="button" class="btn btn-primary" id="new-multitoken-create">Create</button>
 				</div>

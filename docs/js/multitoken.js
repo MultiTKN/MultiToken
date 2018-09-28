@@ -252,6 +252,15 @@ window.addEventListener('load', async function() {
         const allTokensSymbols = allTokenInfo[4].map(a => web3js.utils.toUtf8(a));
         const allTokensWeights = allTokenInfo[5];
 
+        const nameSymbolDecimals = await Promise.all([
+            multitokenContract.methods.name().call(),
+            multitokenContract.methods.symbol().call(),
+            multitokenContract.methods.decimals().call(),
+        ]);
+        $('#multitokenName').val(nameSymbolDecimals[0]);
+        $('#multitokenSymbol').val(nameSymbolDecimals[1]);
+        $('#multitokenDecimals').val(nameSymbolDecimals[2]);
+
         $("#tokens tbody").html(allTokens.map(
             (token, index) =>
                 `<tr id="token_${index}">` +
@@ -375,11 +384,11 @@ window.addEventListener('load', async function() {
             const [_mul, _div] = function() {
                 if (!multitokenCapitalizationWei.isZero()) {
                     const _mul = allTokensBalances[ethIndex];
-                    const _div = multitokenCapitalizationWei;
+                    const _div = remainingValueWei;
                     return [_mul, _div];
                 } else {
                     const _mul = web3js.utils.toBN(allTokensWeights[ethIndex]);
-                    const _div = web3js.utils.toBN(allTokensWeightsSum);
+                    const _div = web3js.utils.toBN(remainingWeight);
                     return [_mul, _div];
                 }
             }();
@@ -410,11 +419,11 @@ window.addEventListener('load', async function() {
             const [_mul, _div] = function() {
                 if (!multitokenCapitalizationWei.isZero()) {
                     const _mul = allTokensBalances[i].mul(tokenPriceETH[tokenSymbol]).mul(_18).div(_10).div(allTokensPowers[i]);
-                    const _div = multitokenCapitalizationWei;
+                    const _div = remainingValueWei;
                     return [_mul, _div];
                 } else {
                     const _mul = web3js.utils.toBN(allTokensWeights[i]);
-                    const _div = web3js.utils.toBN(allTokensWeightsSum);
+                    const _div = web3js.utils.toBN(remainingWeight);
                     return [_mul, _div];
                 }
             }();
@@ -679,6 +688,11 @@ window.addEventListener('load', async function() {
             setTimeout
         });
     }
+
+    // Sync scrolling tokens and weights
+    $("#new-multitoken-tokens, #new-multitoken-weights").on("scroll", function() {
+        $("#new-multitoken-tokens, #new-multitoken-weights").scrollTop($(this).scrollTop());
+    });
 
     // SETUP WEB3
 
