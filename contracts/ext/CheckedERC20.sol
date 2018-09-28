@@ -2,6 +2,7 @@ pragma solidity ^0.4.24;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/DetailedERC20.sol";
 
 
 library CheckedERC20 {
@@ -48,24 +49,24 @@ library CheckedERC20 {
         }
     }
 
-    function asmTransfer(address _token, address _to, uint256 _value) internal returns(bool) {
+    function asmTransfer(ERC20 _token, address _to, uint256 _value) internal returns(bool) {
         require(isContract(_token));
         // solium-disable-next-line security/no-low-level-calls
-        require(_token.call(bytes4(keccak256("transfer(address,uint256)")), _to, _value));
+        require(address(_token).call(bytes4(keccak256("transfer(address,uint256)")), _to, _value)); // selector do not support overloads
         return handleReturnBool();
     }
 
-    function asmTransferFrom(address _token, address _from, address _to, uint256 _value) internal returns(bool) {
+    function asmTransferFrom(ERC20 _token, address _from, address _to, uint256 _value) internal returns(bool) {
         require(isContract(_token));
         // solium-disable-next-line security/no-low-level-calls
-        require(_token.call(bytes4(keccak256("transferFrom(address,address,uint256)")), _from, _to, _value));
+        require(address(_token).call(_token.transferFrom.selector, _from, _to, _value));
         return handleReturnBool();
     }
 
-    function asmApprove(address _token, address _spender, uint256 _value) internal returns(bool) {
+    function asmApprove(ERC20 _token, address _spender, uint256 _value) internal returns(bool) {
         require(isContract(_token));
         // solium-disable-next-line security/no-low-level-calls
-        require(_token.call(bytes4(keccak256("approve(address,uint256)")), _spender, _value));
+        require(address(_token).call(_token.approve.selector, _spender, _value));
         return handleReturnBool();
     }
 
@@ -89,17 +90,17 @@ library CheckedERC20 {
 
     //
 
-    function asmName(address _token) internal view returns(bytes32) {
+    function asmName(DetailedERC20 _token) internal view returns(bytes32) {
         require(isContract(_token));
         // solium-disable-next-line security/no-low-level-calls
-        require(_token.call(bytes4(keccak256("name()"))));
+        require(address(_token).call(_token.name.selector));
         return handleReturnBytes32();
     }
 
-    function asmSymbol(address _token) internal view returns(bytes32) {
+    function asmSymbol(DetailedERC20 _token) internal view returns(bytes32) {
         require(isContract(_token));
         // solium-disable-next-line security/no-low-level-calls
-        require(_token.call(bytes4(keccak256("symbol()"))));
+        require(address(_token).call(_token.symbol.selector));
         return handleReturnBytes32();
     }
 }
