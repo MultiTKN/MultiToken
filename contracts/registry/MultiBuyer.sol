@@ -67,7 +67,7 @@ contract MultiBuyer is MultiChanger {
             }
         }
 
-        _mtkn.bundleFirstTokens(msg.sender, msg.value.mul(1000), amounts);
+        _mtkn.bundleFirstTokens(msg.sender, msg.value.mul(100), amounts);
         if (address(this).balance > 0) {
             msg.sender.transfer(address(this).balance);
         }
