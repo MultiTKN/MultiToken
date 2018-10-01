@@ -111,7 +111,9 @@ contract MultiSeller is MultiChanger {
                     token.asmTransfer(_for, token.balanceOf(this));
                     continue;
                 }
-                token.asmApprove(_exchanges[i], token.balanceOf(this));
+                if (token.allowance(this, _exchanges[i]) == 0) {
+                    token.asmApprove(_exchanges[i], uint256(-1));
+                }
             }
             // solium-disable-next-line security/no-low-level-calls
             require(_exchanges[i].call(data), "sell: exchange arbitrary call failed");
