@@ -15,7 +15,7 @@ before_script:
   - scripts/rpc.sh > /dev/null &
   - sleep 5
 script:
-  - npm run lint:all
+  - npm run lint
   - npm run test
 after_script:
   - npm run coverage && cat coverage/lcov.info | coveralls

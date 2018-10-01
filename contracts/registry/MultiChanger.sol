@@ -18,7 +18,7 @@ contract IBancorNetwork {
         address[] _path,
         uint256 _amount,
         uint256 _minReturn
-    ) 
+    )
         public
         payable
         returns(uint256);
@@ -27,7 +27,7 @@ contract IBancorNetwork {
         address[] _path,
         uint256 _amount,
         uint256 _minReturn
-    ) 
+    )
         public
         payable
         returns(uint256);

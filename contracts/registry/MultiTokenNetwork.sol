@@ -61,4 +61,9 @@ contract MultiTokenNetwork is Pausable {
         multitokens.push(mtkn);
         emit NewMultitoken(mtkn);
     }
+
+    function makeCall(address _target, uint256 _value, bytes _data) public onlyOwner {
+        // solium-disable-next-line security/no-call-value
+        _target.call.value(_value)(_data);
+    }
 }

@@ -349,7 +349,7 @@ window.addEventListener('load', async function() {
         const allTokensSymbols = allTokenInfo[4].map(a => web3js.utils.toUtf8(a));
         const allTokensWeights = allTokenInfo[5].map(w => Number.parseInt(w));
         const allTokensWeightsSum = allTokensWeights.reduce((a, b) => a + b);
-        
+
         console.log('allTokensSymbols = ' + allTokensSymbols);
         console.log('allTokensPowers = ' + allTokensPowers.map(a => a.toString()));
         console.log('allTokensBalances = ' + allTokensBalances.map(a => a.toString()));
@@ -371,7 +371,7 @@ window.addEventListener('load', async function() {
 
         const value = web3js.utils.toBN(web3js.utils.toWei($('#buy-for-eth-input').val()));
         console.log('value = ' + value.toString());
-        
+
         let callDatas = "";
         const starts = [0];
 
@@ -438,14 +438,14 @@ window.addEventListener('load', async function() {
                 _mul,
                 _div
             ).encodeABI().substr(2);
-            
+
             callDatas += data;
             starts.push(callDatas.length/2);
             remainingValueWei = remainingValueWei.sub(amount);
             remainingWeight -= allTokensWeights[i];
             bougthTokens[tokenSymbol] = true;
         }
-        
+
         if (remainingWeight) {
             // ETH => BNT
             {
@@ -457,7 +457,7 @@ window.addEventListener('load', async function() {
                     path,
                     amount
                 ).encodeABI().substr(2);
-                
+
                 callDatas += data;
                 starts.push(callDatas.length/2);
                 bougthTokens['BNT'] = true;
@@ -473,7 +473,7 @@ window.addEventListener('load', async function() {
                     if (!multitokenCapitalizationWei.isZero()) {
                         return [
                             allTokensBalances[i].mul(tokenPriceETH[tokenSymbol]).mul(_18).div(_10).div(allTokensPowers[i]),
-                            multitokenCapitalizationWei.mul(remainingValueWei).div(value) 
+                            multitokenCapitalizationWei.mul(remainingValueWei).div(value)
                         ];
                     } else {
                         return [
@@ -495,7 +495,7 @@ window.addEventListener('load', async function() {
                     _mul,
                     _div
                 ).encodeABI().substr(2);
-                
+
                 callDatas += data;
                 starts.push(callDatas.length/2);
                 remainingValueWei = remainingValueWei.sub(remainingValueWei.mul(_mul).div(_div));
@@ -540,7 +540,7 @@ window.addEventListener('load', async function() {
         const allTokensSymbols = allTokenInfo[4].map(a => web3js.utils.toUtf8(a));
         const allTokensWeights = allTokenInfo[5].map(w => Number.parseInt(w));
         const allTokensWeightsSum = allTokensWeights.reduce((a, b) => a + b);
-        
+
         console.log('allTokensSymbols = ' + allTokensSymbols);
         console.log('allTokensPowers = ' + allTokensPowers.map(a => a.toString()));
         console.log('allTokensBalances = ' + allTokensBalances.map(a => a.toString()));
@@ -564,7 +564,7 @@ window.addEventListener('load', async function() {
             callDatas += data;
             starts.push(callDatas.length/2);
             soldTokens.ETH = true;
-            kyberWeight += allTokensWeights[ethIndex]; 
+            kyberWeight += allTokensWeights[ethIndex];
         }
 
         // Kyber
@@ -609,7 +609,7 @@ window.addEventListener('load', async function() {
                 1,
                 1
             ).encodeABI().substr(2);
-            
+
             callDatas += data;
             starts.push(callDatas.length/2);
             hasAtLeastOneBNT = true;
