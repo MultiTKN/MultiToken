@@ -36,12 +36,12 @@
   },
   "scripts": {
     "test": "truffle test",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
+    "lint:js": "eslint .",
+    "lint:js:fix": "eslint . --fix",
     "lint:sol": "solium -d .",
     "lint:sol:fix": "solium -d . --fix",
-    "lint:all": "npm run lint && npm run lint:sol",
-    "lint:all:fix": "npm run lint:fix && npm run lint:sol:fix",
+    "lint": "npm run lint:js && npm run lint:sol",
+    "lint:fix": "npm run lint:js:fix && npm run lint:sol:fix",
     "coverage": "./node_modules/.bin/solidity-coverage",
     "profiler": "./node_modules/.bin/solidity-profiler",
     "rpc": "scripts/rpc.sh"
