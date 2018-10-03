@@ -12,73 +12,73 @@ contract MultiTokenInfo is IMultiTokenInfo {
 
     // BasicMultiToken
 
-    function allTokens(IBasicMultiToken _mtkn) public view returns(ERC20[] _tokens) {
-        _tokens = new ERC20[](_mtkn.tokensCount());
-        for (uint i = 0; i < _tokens.length; i++) {
-            _tokens[i] = _mtkn.tokens(i);
+    function allTokens(IBasicMultiToken mtkn) public view returns(ERC20[] tokens) {
+        tokens = new ERC20[](mtkn.tokensCount());
+        for (uint i = 0; i < tokens.length; i++) {
+            tokens[i] = mtkn.tokens(i);
         }
     }
 
-    function allBalances(IBasicMultiToken _mtkn) public view returns(uint256[] _balances) {
-        _balances = new uint256[](_mtkn.tokensCount());
-        for (uint i = 0; i < _balances.length; i++) {
-            _balances[i] = _mtkn.tokens(i).balanceOf(_mtkn);
+    function allBalances(IBasicMultiToken mtkn) public view returns(uint256[] balances) {
+        balances = new uint256[](mtkn.tokensCount());
+        for (uint i = 0; i < balances.length; i++) {
+            balances[i] = mtkn.tokens(i).balanceOf(mtkn);
         }
     }
 
-    function allDecimals(IBasicMultiToken _mtkn) public view returns(uint8[] _decimals) {
-        _decimals = new uint8[](_mtkn.tokensCount());
-        for (uint i = 0; i < _decimals.length; i++) {
-            _decimals[i] = DetailedERC20(_mtkn.tokens(i)).decimals();
+    function allDecimals(IBasicMultiToken mtkn) public view returns(uint8[] decimals) {
+        decimals = new uint8[](mtkn.tokensCount());
+        for (uint i = 0; i < decimals.length; i++) {
+            decimals[i] = DetailedERC20(mtkn.tokens(i)).decimals();
         }
     }
 
-    function allNames(IBasicMultiToken _mtkn) public view returns(bytes32[] _names) {
-        _names = new bytes32[](_mtkn.tokensCount());
-        for (uint i = 0; i < _names.length; i++) {
-            _names[i] = DetailedERC20(_mtkn.tokens(i)).asmName();
+    function allNames(IBasicMultiToken mtkn) public view returns(bytes32[] names) {
+        names = new bytes32[](mtkn.tokensCount());
+        for (uint i = 0; i < names.length; i++) {
+            names[i] = DetailedERC20(mtkn.tokens(i)).asmName();
         }
     }
 
-    function allSymbols(IBasicMultiToken _mtkn) public view returns(bytes32[] _symbols) {
-        _symbols = new bytes32[](_mtkn.tokensCount());
-        for (uint i = 0; i < _symbols.length; i++) {
-            _symbols[i] = DetailedERC20(_mtkn.tokens(i)).asmSymbol();
+    function allSymbols(IBasicMultiToken mtkn) public view returns(bytes32[] symbols) {
+        symbols = new bytes32[](mtkn.tokensCount());
+        for (uint i = 0; i < symbols.length; i++) {
+            symbols[i] = DetailedERC20(mtkn.tokens(i)).asmSymbol();
         }
     }
 
-    function allTokensBalancesDecimalsNamesSymbols(IBasicMultiToken _mtkn) public view returns(
-        ERC20[] _tokens,
-        uint256[] _balances,
-        uint8[] _decimals,
-        bytes32[] _names,
-        bytes32[] _symbols
+    function allTokensBalancesDecimalsNamesSymbols(IBasicMultiToken mtkn) public view returns(
+        ERC20[] tokens,
+        uint256[] balances,
+        uint8[] decimals,
+        bytes32[] names,
+        bytes32[] symbols
     ) {
-        _tokens = allTokens(_mtkn);
-        _balances = allBalances(_mtkn);
-        _decimals = allDecimals(_mtkn);
-        _names = allNames(_mtkn);
-        _symbols = allSymbols(_mtkn);
+        tokens = allTokens(mtkn);
+        balances = allBalances(mtkn);
+        decimals = allDecimals(mtkn);
+        names = allNames(mtkn);
+        symbols = allSymbols(mtkn);
     }
 
     // MultiToken
 
-    function allWeights(IMultiToken _mtkn) public view returns(uint256[] _weights) {
-        _weights = new uint256[](_mtkn.tokensCount());
-        for (uint i = 0; i < _weights.length; i++) {
-            _weights[i] = _mtkn.weights(_mtkn.tokens(i));
+    function allWeights(IMultiToken mtkn) public view returns(uint256[] weights) {
+        weights = new uint256[](mtkn.tokensCount());
+        for (uint i = 0; i < weights.length; i++) {
+            weights[i] = mtkn.weights(mtkn.tokens(i));
         }
     }
 
-    function allTokensBalancesDecimalsNamesSymbolsWeights(IMultiToken _mtkn) public view returns(
-        ERC20[] _tokens,
-        uint256[] _balances,
-        uint8[] _decimals,
-        bytes32[] _names,
-        bytes32[] _symbols,
-        uint256[] _weights
+    function allTokensBalancesDecimalsNamesSymbolsWeights(IMultiToken mtkn) public view returns(
+        ERC20[] tokens,
+        uint256[] balances,
+        uint8[] decimals,
+        bytes32[] names,
+        bytes32[] symbols,
+        uint256[] weights
     ) {
-        (_tokens, _balances, _decimals, _names, _symbols) = allTokensBalancesDecimalsNamesSymbols(_mtkn);
-        _weights = allWeights(_mtkn);
+        (tokens, balances, decimals, names, symbols) = allTokensBalancesDecimalsNamesSymbols(mtkn);
+        weights = allWeights(mtkn);
     }
 }
