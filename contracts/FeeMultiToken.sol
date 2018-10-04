@@ -9,50 +9,62 @@ import "./MultiToken.sol";
 contract FeeMultiToken is Ownable, MultiToken {
     using CheckedERC20 for ERC20;
 
-    uint256 public constant TOTAL_PERCRENTS = 1000000;
-    uint256 public lendFee;
-    uint256 public changeFee;
-    uint256 public refferalFee;
+    uint256 constant public TOTAL_PERCRENTS = 1000000;
+    uint256 internal _lendFee;
+    uint256 internal _changeFee;
+    uint256 internal _referralFee;
 
-    function init(ERC20[] _tokens, uint256[] _weights, string _name, string _symbol, uint8 /*_decimals*/) public {
-        super.init(_tokens, _weights, _name, _symbol, 18);
+    function init(ERC20[] tokens, uint256[] weights, string name, string symbol, uint8 /*_decimals*/) public {
+        super.init(tokens, weights, name, symbol, 18);
     }
 
-    function setLendFee(uint256 _lendFee) public onlyOwner {
-        require(_lendFee <= 30000, "setLendFee: fee should be not greater than 3%");
-        lendFee = _lendFee;
+    function lendFee() public view returns(uint256) {
+        return _lendFee;
     }
 
-    function setChangeFee(uint256 _changeFee) public onlyOwner {
-        require(_changeFee <= 30000, "setChangeFee: fee should be not greater than 3%");
-        changeFee = _changeFee;
+    function changeFee() public view returns(uint256) {
+        return _changeFee;
     }
 
-    function setRefferalFee(uint256 _refferalFee) public onlyOwner {
-        require(_refferalFee <= 500000, "setChangeFee: fee should be not greater than 50% of changeFee");
-        refferalFee = _refferalFee;
+    function referralFee() public view returns(uint256) {
+        return _referralFee;
     }
 
-    function getReturn(address _fromToken, address _toToken, uint256 _amount) public view returns(uint256 returnAmount) {
-        returnAmount = super.getReturn(_fromToken, _toToken, _amount).mul(TOTAL_PERCRENTS.sub(changeFee)).div(TOTAL_PERCRENTS);
+    function setLendFee(uint256 lendFee) public onlyOwner {
+        require(lendFee <= 30000, "setLendFee: fee should be not greater than 3%");
+        _lendFee = lendFee;
     }
 
-    function change(address _fromToken, address _toToken, uint256 _amount, uint256 _minReturn) public returns(uint256 returnAmount) {
-        returnAmount = changeWithRef(_fromToken, _toToken, _amount, _minReturn, 0);
+    function setChangeFee(uint256 changeFee) public onlyOwner {
+        require(changeFee <= 30000, "setChangeFee: fee should be not greater than 3%");
+        _changeFee = changeFee;
     }
 
-    function changeWithRef(address _fromToken, address _toToken, uint256 _amount, uint256 _minReturn, address _ref) public returns(uint256 returnAmount) {
-        returnAmount = super.change(_fromToken, _toToken, _amount, _minReturn);
+    function setReferralFee(uint256 referralFee) public onlyOwner {
+        require(referralFee <= 500000, "setChangeFee: fee should be not greater than 50% of changeFee");
+        _referralFee = referralFee;
+    }
+
+    function getReturn(address fromToken, address toToken, uint256 amount) public view returns(uint256 returnAmount) {
+        returnAmount = super.getReturn(fromToken, toToken, amount).mul(TOTAL_PERCRENTS.sub(_changeFee)).div(TOTAL_PERCRENTS);
+    }
+
+    function change(address fromToken, address toToken, uint256 amount, uint256 minReturn) public returns(uint256 returnAmount) {
+        returnAmount = changeWithRef(fromToken, toToken, amount, minReturn, 0);
+    }
+
+    function changeWithRef(address fromToken, address toToken, uint256 amount, uint256 minReturn, address ref) public returns(uint256 returnAmount) {
+        returnAmount = super.change(fromToken, toToken, amount, minReturn);
         uint256 refferalAmount = returnAmount
-            .mul(changeFee).div(TOTAL_PERCRENTS.sub(changeFee))
-            .mul(refferalFee).div(TOTAL_PERCRENTS);
+            .mul(_changeFee).div(TOTAL_PERCRENTS.sub(_changeFee))
+            .mul(_referralFee).div(TOTAL_PERCRENTS);
 
-        ERC20(_toToken).checkedTransfer(_ref, refferalAmount);
+        ERC20(toToken).checkedTransfer(ref, refferalAmount);
     }
 
-    function lend(address _to, ERC20 _token, uint256 _amount, address _target, bytes _data) public payable {
-        uint256 prevBalance = _token.balanceOf(this);
-        super.lend(_to, _token, _amount, _target, _data);
-        require(_token.balanceOf(this) >= prevBalance.mul(TOTAL_PERCRENTS.add(lendFee)).div(TOTAL_PERCRENTS), "lend: tokens must be returned with lend fee");
+    function lend(address to, ERC20 token, uint256 amount, address target, bytes data) public payable {
+        uint256 prevBalance = token.balanceOf(this);
+        super.lend(to, token, amount, target, data);
+        require(token.balanceOf(this) >= prevBalance.mul(TOTAL_PERCRENTS.add(_lendFee)).div(TOTAL_PERCRENTS), "lend: tokens must be returned with lend fee");
     }
 }
