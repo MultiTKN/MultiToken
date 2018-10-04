@@ -53,6 +53,10 @@ contract BasicMultiToken is Ownable, StandardToken, DetailedERC20, ERC1003Token,
         return _inLendingMode;
     }
 
+    function bundlingEnabled() public view returns(uint) {
+        return _bundlingEnabled;
+    }
+
     function bundleFirstTokens(address beneficiary, uint256 amount, uint256[] tokenAmounts) public whenBundlingEnabled notInLendingMode {
         require(totalSupply_ == 0, "bundleFirstTokens: This method can be used with zero total supply only");
         _bundle(beneficiary, amount, tokenAmounts);
