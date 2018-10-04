@@ -27,9 +27,11 @@ contract MultiToken is IMultiToken, BasicMultiToken {
         return _changesEnabled;
     }
 
-    function init(ERC20[] tokens, uint256[] tokenWeights, string name, string symbol, uint8 decimals) public {
-        super.init(tokens, name, symbol, decimals);
+    constructor(ERC20[] tokens, uint256[] tokenWeights, string name, string symbol, uint8 decimals) 
+        public BasicMultiToken(tokens, name, symbol, decimals)
+    {
         require(tokenWeights.length == tokens.length, "Lenghts of tokens and tokenWeights array should be equal");
+
         for (uint i = 0; i < tokens.length; i++) {
             require(tokenWeights[i] != 0, "The tokenWeights array should not contains zeros");
             require(_weights[tokens[i]] == 0, "The tokens array have duplicates");
@@ -38,10 +40,6 @@ contract MultiToken is IMultiToken, BasicMultiToken {
                 _minimalWeight = tokenWeights[i];
             }
         }
-    }
-
-    function init2(ERC20[] tokens, uint256[] tokenWeights, string name, string symbol, uint8 decimals) public {
-        init(tokens, tokenWeights, name, symbol, decimals);
     }
 
     function getReturn(address fromToken, address toToken, uint256 amount) public view returns(uint256 returnAmount) {

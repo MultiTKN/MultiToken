@@ -34,18 +34,16 @@ contract('BasicMultiToken', function ([_, wallet1, wallet2, wallet3, wallet4, wa
     });
 
     it('should fail to create multitoken with wrong arguments', async function () {
-        const mt = await BasicMultiToken.new();
-        await mt.init([abc.address], 'Multi', '1ABC', 18).should.be.rejectedWith(EVMRevert);
-        await mt.init([xyz.address], 'Multi', '1XYZ', 18).should.be.rejectedWith(EVMRevert);
-        await mt.init([abc.address, xyz.address], '', '1ABC', 18).should.be.rejectedWith(EVMRevert);
-        await mt.init([abc.address, xyz.address], 'Multi', '', 18).should.be.rejectedWith(EVMRevert);
-        await mt.init([abc.address, xyz.address], 'Multi', '1ABC', 0).should.be.rejectedWith(EVMRevert);
+        await BasicMultiToken.new([abc.address], 'Multi', '1ABC', 18).should.be.rejectedWith(EVMRevert);
+        await BasicMultiToken.new([xyz.address], 'Multi', '1XYZ', 18).should.be.rejectedWith(EVMRevert);
+        await BasicMultiToken.new([abc.address, xyz.address], '', '1ABC', 18).should.be.rejectedWith(EVMRevert);
+        await BasicMultiToken.new([abc.address, xyz.address], 'Multi', '', 18).should.be.rejectedWith(EVMRevert);
+        await BasicMultiToken.new([abc.address, xyz.address], 'Multi', '1ABC', 0).should.be.rejectedWith(EVMRevert);
     });
 
     describe('bundle', async function () {
         beforeEach(async function () {
-            multi = await BasicMultiToken.new();
-            await multi.init([abc.address, xyz.address], 'Multi', '1ABC_1XYZ', 18);
+            multi = await BasicMultiToken.new([abc.address, xyz.address], 'Multi', '1ABC_1XYZ', 18);
         });
 
         it('should not bundle first tokens with bundle method', async function () {
@@ -88,8 +86,7 @@ contract('BasicMultiToken', function ([_, wallet1, wallet2, wallet3, wallet4, wa
             const _xyz = await BrokenTransferFromToken.new('XYZ');
             await _xyz.mint(_, 500e6);
 
-            const brokenMulti = await BasicMultiToken.new();
-            await brokenMulti.init([_abc.address, _xyz.address], 'Multi', '1ABC_1XYZ', 18);
+            const brokenMulti = await BasicMultiToken.new([_abc.address, _xyz.address], 'Multi', '1ABC_1XYZ', 18);
             await _abc.approve(brokenMulti.address, 1000e6);
             await _xyz.approve(brokenMulti.address, 500e6);
             await brokenMulti.bundleFirstTokens(_, 1000, [1000e6, 500e6]).should.be.rejectedWith(EVMRevert);
@@ -98,8 +95,7 @@ contract('BasicMultiToken', function ([_, wallet1, wallet2, wallet3, wallet4, wa
 
     describe('unbundle', async function () {
         beforeEach(async function () {
-            multi = await BasicMultiToken.new();
-            await multi.init([abc.address, xyz.address], 'Multi', '1ABC_1XYZ', 18);
+            multi = await BasicMultiToken.new([abc.address, xyz.address], 'Multi', '1ABC_1XYZ', 18);
             await abc.approve(multi.address, 1000e6);
             await xyz.approve(multi.address, 500e6);
             await multi.bundleFirstTokens(_, 1000, [1000e6, 500e6]);
@@ -164,8 +160,7 @@ contract('BasicMultiToken', function ([_, wallet1, wallet2, wallet3, wallet4, wa
             const _xyz = await Token.new('XYZ');
             await _xyz.mint(_, 500e6);
 
-            const brokenMulti = await BasicMultiToken.new();
-            await brokenMulti.init([_abc.address, _xyz.address], 'Multi', '1ABC_1XYZ', 18);
+            const brokenMulti = await BasicMultiToken.new([_abc.address, _xyz.address], 'Multi', '1ABC_1XYZ', 18);
             await _abc.approve(brokenMulti.address, 1000e6);
             await _xyz.approve(brokenMulti.address, 500e6);
             await brokenMulti.bundleFirstTokens(_, 1000, [1000e6, 500e6]);
@@ -181,8 +176,7 @@ contract('BasicMultiToken', function ([_, wallet1, wallet2, wallet3, wallet4, wa
             const _xyz = await BrokenTransferToken.new('XYZ');
             await _xyz.mint(_, 500e6);
 
-            const brokenMulti = await BasicMultiToken.new();
-            await brokenMulti.init([_abc.address, _xyz.address], 'Multi', '1ABC_1XYZ', 18);
+            const brokenMulti = await BasicMultiToken.new([_abc.address, _xyz.address], 'Multi', '1ABC_1XYZ', 18);
             await _abc.approve(brokenMulti.address, 1000e6);
             await _xyz.approve(brokenMulti.address, 500e6);
             await brokenMulti.bundleFirstTokens(_, 1000, [1000e6, 500e6]);

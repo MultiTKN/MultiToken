@@ -14,8 +14,9 @@ contract FeeMultiToken is Ownable, MultiToken {
     uint256 internal _changeFee;
     uint256 internal _referralFee;
 
-    function init(ERC20[] tokens, uint256[] weights, string name, string symbol, uint8 /*_decimals*/) public {
-        super.init(tokens, weights, name, symbol, 18);
+    constructor(ERC20[] tokens, uint256[] weights, string name, string symbol, uint8 /*_decimals*/)
+        public MultiToken(tokens, weights, name, symbol, 18)
+    {
     }
 
     function lendFee() public view returns(uint256) {

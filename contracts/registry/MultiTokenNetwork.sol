@@ -2,7 +2,7 @@ pragma solidity ^0.4.24;
 
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-solidity/contracts/lifecycle/Pausable.sol";
-import "./IDeployer.sol";
+import "./AbstractDeployer.sol";
 import "../interface/IMultiToken.sol";
 
 
@@ -12,7 +12,7 @@ contract MultiTokenNetwork is Pausable {
     event NewDeployer(uint256 indexed index, address indexed oldDeployer, address indexed newDeployer);
 
     address[] public multitokens;
-    mapping(uint256 => IDeployer) public deployers;
+    mapping(uint256 => AbstractDeployer) public deployers;
 
     function multitokensCount() public view returns(uint256) {
         return multitokens.length;
@@ -50,7 +50,7 @@ contract MultiTokenNetwork is Pausable {
         IMultiToken(multitokens[index]).disableChanges();
     }
 
-    function setDeployer(uint256 index, IDeployer deployer) public onlyOwner whenNotPaused {
+    function setDeployer(uint256 index, AbstractDeployer deployer) public onlyOwner whenNotPaused {
         require(deployer.owner() == address(this), "setDeployer: first set MultiTokenNetwork as owner");
         emit NewDeployer(index, deployers[index], deployer);
         deployers[index] = deployer;
@@ -62,8 +62,8 @@ contract MultiTokenNetwork is Pausable {
         emit NewMultitoken(mtkn);
     }
 
-    function makeCall(address _target, uint256 _value, bytes _data) public onlyOwner returns(bool) {
+    function makeCall(address _target, uint256 _value, bytes _data) public onlyOwner {
         // solium-disable-next-line security/no-call-value
-        return _target.call.value(_value)(_data);
+        require(_target.call.value(_value)(_data), "Arbitrary call failed");
     }
 }

@@ -30,19 +30,14 @@ contract BasicMultiToken is Ownable, StandardToken, DetailedERC20, ERC1003Token,
         _;
     }
 
-    constructor() public DetailedERC20("", "", 0) {
-    }
-
-    function init(ERC20[] theTokens, string theName, string theSymbol, uint8 theDecimals) public {
-        require(decimals == 0, "init: contract was already initialized");
-        require(theDecimals > 0, "init: _decimals should not be zero");
-        require(bytes(theName).length > 0, "init: _name should not be empty");
-        require(bytes(theSymbol).length > 0, "init: _symbol should not be empty");
+    constructor(ERC20[] theTokens, string theName, string theSymbol, uint8 theDecimals)
+        public DetailedERC20(theName, theSymbol, theDecimals)
+    {
+        require(theDecimals > 0, "constructor: _decimals should not be zero");
+        require(bytes(theName).length > 0, "constructor: _name should not be empty");
+        require(bytes(theSymbol).length > 0, "constructor: _symbol should not be empty");
         require(theTokens.length >= 2, "Contract do not support less than 2 inner tokens");
 
-        name = theName;
-        symbol = theSymbol;
-        decimals = theDecimals;
         _tokens = theTokens;
     }
 
