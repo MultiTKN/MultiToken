@@ -30,19 +30,19 @@ contract FeeMultiToken is Ownable, MultiToken {
         return _referralFee;
     }
 
-    function setLendFee(uint256 lendFee) public onlyOwner {
-        require(lendFee <= 30000, "setLendFee: fee should be not greater than 3%");
-        _lendFee = lendFee;
+    function setLendFee(uint256 theLendFee) public onlyOwner {
+        require(theLendFee <= 30000, "setLendFee: fee should be not greater than 3%");
+        _lendFee = theLendFee;
     }
 
-    function setChangeFee(uint256 changeFee) public onlyOwner {
-        require(changeFee <= 30000, "setChangeFee: fee should be not greater than 3%");
-        _changeFee = changeFee;
+    function setChangeFee(uint256 theChangeFee) public onlyOwner {
+        require(theChangeFee <= 30000, "setChangeFee: fee should be not greater than 3%");
+        _changeFee = theChangeFee;
     }
 
-    function setReferralFee(uint256 referralFee) public onlyOwner {
-        require(referralFee <= 500000, "setChangeFee: fee should be not greater than 50% of changeFee");
-        _referralFee = referralFee;
+    function setReferralFee(uint256 theReferralFee) public onlyOwner {
+        require(theReferralFee <= 500000, "setChangeFee: fee should be not greater than 50% of changeFee");
+        _referralFee = theReferralFee;
     }
 
     function getReturn(address fromToken, address toToken, uint256 amount) public view returns(uint256 returnAmount) {

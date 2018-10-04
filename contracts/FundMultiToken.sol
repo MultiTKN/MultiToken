@@ -174,7 +174,7 @@ contract FundMultiToken is LockableMultiTokenMixin {
         return super._unbundle(beneficiary, value, someTokens);
     }
 
-    function linearInterpolation(uint256 a, uint256 b, uint256 _mul, uint256 _notDiv) internal view returns(uint256) {
+    function linearInterpolation(uint256 a, uint256 b, uint256 _mul, uint256 _notDiv) internal pure returns(uint256) {
         if (a < b) {
             return a.mul(_notDiv).add(b.sub(a).mul(_mul));
         }
