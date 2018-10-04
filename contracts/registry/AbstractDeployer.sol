@@ -7,7 +7,9 @@ contract AbstractDeployer is Ownable {
     function deploy(bytes data)
         external onlyOwner returns(address result)
     {
+        // solium-disable-next-line security/no-low-level-calls
         require(address(this).call(data), "Arbitrary call failed");
+        // solium-disable-next-line security/no-inline-assembly
         assembly {
             returndatacopy(0, 0, 32)
             result := mload(0)
