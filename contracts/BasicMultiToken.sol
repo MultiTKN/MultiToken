@@ -12,9 +12,9 @@ contract BasicMultiToken is Ownable, StandardToken, DetailedERC20, ERC1003Token,
     using CheckedERC20 for ERC20;
     using CheckedERC20 for DetailedERC20;
 
-    ERC20[] internal _tokens;
-    uint internal _inLendingMode;
-    bool internal _bundlingEnabled = true;
+    ERC20[] private _tokens;
+    uint private _inLendingMode;
+    bool private _bundlingEnabled = true;
 
     event Bundle(address indexed who, address indexed beneficiary, uint256 value);
     event Unbundle(address indexed who, address indexed beneficiary, uint256 value);
@@ -52,6 +52,10 @@ contract BasicMultiToken is Ownable, StandardToken, DetailedERC20, ERC1003Token,
 
     function tokens(uint i) public view returns(ERC20) {
         return _tokens[i];
+    }
+
+    function inLendingMode() public view returns(uint) {
+        return _inLendingMode;
     }
 
     function bundleFirstTokens(address beneficiary, uint256 amount, uint256[] tokenAmounts) public whenBundlingEnabled notInLendingMode {

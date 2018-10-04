@@ -11,7 +11,7 @@ contract OwnableMultiTokenMixin is Ownable, MultiToken {
 
 contract ManagealbleOrOwnableMultiTokenMixin is OwnableMultiTokenMixin {
     // solium-disable-next-line security/no-tx-origin
-    address internal _manager = tx.origin;
+    address private _manager = tx.origin;
 
     modifier onlyManager {
         require(msg.sender == _manager, "Access denied");
@@ -35,7 +35,7 @@ contract ManagealbleOrOwnableMultiTokenMixin is OwnableMultiTokenMixin {
 
 
 contract LockableMultiTokenMixin is ManagealbleOrOwnableMultiTokenMixin {
-    mapping(address => bool) internal _tokenIsLocked;
+    mapping(address => bool) private _tokenIsLocked;
 
     function lockToken(address token) public onlyOwnerOrManager {
         _tokenIsLocked[token] = true;
@@ -60,11 +60,11 @@ contract LockableMultiTokenMixin is ManagealbleOrOwnableMultiTokenMixin {
 
 
 contract FundMultiToken is LockableMultiTokenMixin {
-    mapping(address => uint256) public _nextWeights;
-    uint256 internal _nextMinimalWeight;
-    uint256 internal _nextWeightStartBlock;
-    uint256 internal _nextWeightBlockDelay = 100;
-    uint256 internal _nextWeightBlockDelayUpdate;
+    mapping(address => uint256) private _nextWeights;
+    uint256 private _nextMinimalWeight;
+    uint256 private _nextWeightStartBlock;
+    uint256 private _nextWeightBlockDelay = 100;
+    uint256 private _nextWeightBlockDelayUpdate;
 
     event WeightsChanged(uint256 startingBlockNumber, uint256 endingBlockNumber, uint256 _nextWeightBlockDelay);
 
@@ -82,12 +82,12 @@ contract FundMultiToken is LockableMultiTokenMixin {
 
     function weights(address token) public view returns(uint256) {
         if (_nextWeightStartBlock == 0) {
-            return _weights[token];
+            return weights(token);
         }
 
         uint256 blockProgress = block.number - _nextWeightStartBlock;
         if (blockProgress < _nextWeightBlockDelay) {
-            linearInterpolation(_weights[token], _nextWeights[token], blockProgress, _nextWeightBlockDelay);
+            linearInterpolation(weights(token), _nextWeights[token], blockProgress, _nextWeightBlockDelay);
         }
         return _nextWeights[token];
     }
@@ -101,13 +101,13 @@ contract FundMultiToken is LockableMultiTokenMixin {
     }
 
     function changeWeights(uint256[] theNextWeights) public onlyManager {
-        require(theNextWeights.length == _tokens.length, "theNextWeights array length should match tokens length");
+        require(theNextWeights.length == tokensCount(), "theNextWeights array length should match tokens length");
         require(block.number.sub(_nextWeightStartBlock) > _nextWeightBlockDelay, "Previous weights changed is not completed yet");
 
         // Migrate previous weights
         if (_nextWeightStartBlock != 0) {
-            for (uint i = 0; i < _tokens.length; i++) {
-                _weights[_tokens[i]] = _nextWeights[_tokens[i]];
+            for (uint i = 0; i < tokensCount(); i++) {
+                setWeight(tokens(i), _nextWeights[tokens(i)]);
             }
             _minimalWeight = _nextMinimalWeight;
             if (_nextWeightBlockDelayUpdate > 0) {
@@ -118,9 +118,9 @@ contract FundMultiToken is LockableMultiTokenMixin {
 
         _nextMinimalWeight = 0;
         _nextWeightStartBlock = block.number;
-        for (i = 0; i < _tokens.length; i++) {
+        for (i = 0; i < tokensCount(); i++) {
             require(theNextWeights[i] != 0, "The theNextWeights array should not contains zeros");
-            _nextWeights[_tokens[i]] = theNextWeights[i];
+            _nextWeights[tokens(i)] = theNextWeights[i];
             if (_nextMinimalWeight == 0 || theNextWeights[i] < _nextMinimalWeight) {
                 _nextMinimalWeight = theNextWeights[i];
             }
@@ -134,11 +134,11 @@ contract FundMultiToken is LockableMultiTokenMixin {
         
         uint256 blockProgress = block.number - _nextWeightStartBlock;
         uint256 scaledFromWeight = _minimalWeight;
-        uint256 scaledToWeight = _weights[fromToken];
-        uint256 scaledMinWeight = _weights[toToken];
+        uint256 scaledToWeight = weights(fromToken);
+        uint256 scaledMinWeight = weights(toToken);
         if (blockProgress < _nextWeightBlockDelay) {
-            scaledFromWeight = linearInterpolation(_weights[fromToken], _nextWeights[fromToken], blockProgress, _nextWeightBlockDelay);
-            scaledToWeight = linearInterpolation(_weights[toToken], _nextWeights[toToken], blockProgress, _nextWeightBlockDelay);
+            scaledFromWeight = linearInterpolation(weights(fromToken), _nextWeights[fromToken], blockProgress, _nextWeightBlockDelay);
+            scaledToWeight = linearInterpolation(weights(toToken), _nextWeights[toToken], blockProgress, _nextWeightBlockDelay);
             scaledMinWeight = linearInterpolation(_minimalWeight, _nextMinimalWeight, blockProgress, _nextWeightBlockDelay);
         }
 

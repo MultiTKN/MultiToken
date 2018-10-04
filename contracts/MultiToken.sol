@@ -8,9 +8,9 @@ import "./BasicMultiToken.sol";
 contract MultiToken is IMultiToken, BasicMultiToken {
     using CheckedERC20 for ERC20;
 
-    mapping(address => uint256) internal _weights;
+    mapping(address => uint256) private _weights;
     uint256 internal _minimalWeight;
-    bool internal _changesEnabled = true;
+    bool private _changesEnabled = true;
 
     event ChangesDisabled();
 
@@ -71,5 +71,9 @@ contract MultiToken is IMultiToken, BasicMultiToken {
         require(_changesEnabled, "Changes are already disabled");
         _changesEnabled = false;
         emit ChangesDisabled();
+    }
+
+    function setWeight(address token, uint256 newWeight) internal {
+        _weights[token] = newWeight;
     }
 }
