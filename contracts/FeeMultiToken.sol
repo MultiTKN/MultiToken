@@ -41,7 +41,7 @@ contract FeeMultiToken is Ownable, MultiToken {
     }
 
     function setReferralFee(uint256 theReferralFee) public onlyOwner {
-        require(theReferralFee <= 500000, "setChangeFee: fee should be not greater than 50% of changeFee");
+        require(theReferralFee <= 500000, "setReferralFee: fee should be not greater than 50% of changeFee");
         _referralFee = theReferralFee;
     }
 

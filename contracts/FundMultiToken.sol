@@ -9,7 +9,7 @@ contract OwnableMultiTokenMixin is Ownable, MultiToken {
 }
 
 
-contract ManagealbleOrOwnableMultiTokenMixin is OwnableMultiTokenMixin {
+contract ManageableOrOwnableMultiTokenMixin is OwnableMultiTokenMixin {
     // solium-disable-next-line security/no-tx-origin
     address private _manager = tx.origin;
 
@@ -34,7 +34,7 @@ contract ManagealbleOrOwnableMultiTokenMixin is OwnableMultiTokenMixin {
 }
 
 
-contract LockableMultiTokenMixin is ManagealbleOrOwnableMultiTokenMixin {
+contract LockableMultiTokenMixin is ManageableOrOwnableMultiTokenMixin {
     mapping(address => bool) private _tokenIsLocked;
 
     function lockToken(address token) public onlyOwnerOrManager {
