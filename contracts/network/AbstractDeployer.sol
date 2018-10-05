@@ -4,6 +4,12 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
 
 contract AbstractDeployer is Ownable {
+    string private _name;
+
+    function name() public view returns(string) {
+        return _name;
+    }
+
     function deploy(bytes data)
         external onlyOwner returns(address result)
     {

@@ -9,24 +9,24 @@ import "../ext/CheckedERC20.sol";
 
 contract IEtherToken is ERC20 {
     function deposit() public payable;
-    function withdraw(uint256 _amount) public;
+    function withdraw(uint256 amount) public;
 }
 
 
 contract IBancorNetwork {
     function convert(
-        address[] _path,
-        uint256 _amount,
-        uint256 _minReturn
+        address[] path,
+        uint256 amount,
+        uint256 minReturn
     )
         public
         payable
         returns(uint256);
 
     function claimAndConvert(
-        address[] _path,
-        uint256 _amount,
-        uint256 _minReturn
+        address[] path,
+        uint256 amount,
+        uint256 minReturn
     )
         public
         payable
@@ -76,138 +76,138 @@ contract MultiChanger is CanReclaimToken {
         }
     }
 
-    function change(bytes _callDatas, uint[] _starts) public payable { // _starts should include 0 and _callDatas.length
-        for (uint i = 0; i < _starts.length - 1; i++) {
-            require(externalCall(this, 0, _callDatas, _starts[i], _starts[i + 1] - _starts[i]));
+    function change(bytes callDatas, uint[] starts) public payable { // starts should include 0 and callDatas.length
+        for (uint i = 0; i < starts.length - 1; i++) {
+            require(externalCall(this, 0, callDatas, starts[i], starts[i + 1] - starts[i]));
         }
     }
 
-    function sendEthValue(address _target, bytes _data, uint256 _value) external {
+    function sendEthValue(address target, bytes data, uint256 value) external {
         // solium-disable-next-line security/no-call-value
-        require(_target.call.value(_value)(_data));
+        require(target.call.value(value)(data));
     }
 
-    function sendEthProportion(address _target, bytes _data, uint256 _mul, uint256 _div) external {
-        uint256 value = address(this).balance.mul(_mul).div(_div);
+    function sendEthProportion(address target, bytes data, uint256 mul, uint256 div) external {
+        uint256 value = address(this).balance.mul(mul).div(div);
         // solium-disable-next-line security/no-call-value
-        require(_target.call.value(value)(_data));
+        require(target.call.value(value)(data));
     }
 
-    function approveTokenAmount(address _target, bytes _data, ERC20 _fromToken, uint256 _amount) external {
-        if (_fromToken.allowance(this, _target) != 0) {
-            _fromToken.asmApprove(_target, 0);
+    function approveTokenAmount(address target, bytes data, ERC20 fromToken, uint256 amount) external {
+        if (fromToken.allowance(this, target) != 0) {
+            fromToken.asmApprove(target, 0);
         }
-        _fromToken.asmApprove(_target, _amount);
+        fromToken.asmApprove(target, amount);
         // solium-disable-next-line security/no-low-level-calls
-        require(_target.call(_data));
+        require(target.call(data));
     }
 
-    function approveTokenProportion(address _target, bytes _data, ERC20 _fromToken, uint256 _mul, uint256 _div) external {
-        uint256 amount = _fromToken.balanceOf(this).mul(_mul).div(_div);
-        if (_fromToken.allowance(this, _target) != 0) {
-            _fromToken.asmApprove(_target, 0);
+    function approveTokenProportion(address target, bytes data, ERC20 fromToken, uint256 mul, uint256 div) external {
+        uint256 amount = fromToken.balanceOf(this).mul(mul).div(div);
+        if (fromToken.allowance(this, target) != 0) {
+            fromToken.asmApprove(target, 0);
         }
-        _fromToken.asmApprove(_target, amount);
+        fromToken.asmApprove(target, amount);
         // solium-disable-next-line security/no-low-level-calls
-        require(_target.call(_data));
+        require(target.call(data));
     }
 
-    function transferTokenAmount(address _target, bytes _data, ERC20 _fromToken, uint256 _amount) external {
-        _fromToken.asmTransfer(_target, _amount);
-        if (_target != address(0)) {
+    function transferTokenAmount(address target, bytes data, ERC20 fromToken, uint256 amount) external {
+        fromToken.asmTransfer(target, amount);
+        if (target != address(0)) {
             // solium-disable-next-line security/no-low-level-calls
-            require(_target.call(_data));
+            require(target.call(data));
         }
     }
 
-    function transferTokenProportion(address _target, bytes _data, ERC20 _fromToken, uint256 _mul, uint256 _div) external {
-        uint256 amount = _fromToken.balanceOf(this).mul(_mul).div(_div);
-        _fromToken.asmTransfer(_target, amount);
-        if (_target != address(0)) {
+    function transferTokenProportion(address target, bytes data, ERC20 fromToken, uint256 mul, uint256 div) external {
+        uint256 amount = fromToken.balanceOf(this).mul(mul).div(div);
+        fromToken.asmTransfer(target, amount);
+        if (target != address(0)) {
             // solium-disable-next-line security/no-low-level-calls
-            require(_target.call(_data));
+            require(target.call(data));
         }
     }
 
     // Multitoken
 
-    function multitokenChangeAmount(IMultiToken _mtkn, ERC20 _fromToken, ERC20 _toToken, uint256 _minReturn, uint256 _amount) external {
-        if (_fromToken.allowance(this, _mtkn) == 0) {
-            _fromToken.asmApprove(_mtkn, uint256(-1));
+    function multitokenChangeAmount(IMultiToken mtkn, ERC20 fromToken, ERC20 toToken, uint256 minReturn, uint256 amount) external {
+        if (fromToken.allowance(this, mtkn) == 0) {
+            fromToken.asmApprove(mtkn, uint256(-1));
         }
-        _mtkn.change(_fromToken, _toToken, _amount, _minReturn);
+        mtkn.change(fromToken, toToken, amount, minReturn);
     }
 
-    function multitokenChangeProportion(IMultiToken _mtkn, ERC20 _fromToken, ERC20 _toToken, uint256 _minReturn, uint256 _mul, uint256 _div) external {
-        uint256 amount = _fromToken.balanceOf(this).mul(_mul).div(_div);
-        this.multitokenChangeAmount(_mtkn, _fromToken, _toToken, _minReturn, amount);
+    function multitokenChangeProportion(IMultiToken mtkn, ERC20 fromToken, ERC20 toToken, uint256 minReturn, uint256 mul, uint256 div) external {
+        uint256 amount = fromToken.balanceOf(this).mul(mul).div(div);
+        this.multitokenChangeAmount(mtkn, fromToken, toToken, minReturn, amount);
     }
 
     // Ether token
 
-    function withdrawEtherTokenAmount(IEtherToken _etherToken, uint256 _amount) external {
-        _etherToken.withdraw(_amount);
+    function withdrawEtherTokenAmount(IEtherToken etherToken, uint256 amount) external {
+        etherToken.withdraw(amount);
     }
 
-    function withdrawEtherTokenProportion(IEtherToken _etherToken, uint256 _mul, uint256 _div) external {
-        uint256 amount = _etherToken.balanceOf(this).mul(_mul).div(_div);
-        _etherToken.withdraw(amount);
+    function withdrawEtherTokenProportion(IEtherToken etherToken, uint256 mul, uint256 div) external {
+        uint256 amount = etherToken.balanceOf(this).mul(mul).div(div);
+        etherToken.withdraw(amount);
     }
 
     // Bancor Network
 
-    function bancorSendEthValue(IBancorNetwork _bancor, address[] _path, uint256 _value) external {
-        _bancor.convert.value(_value)(_path, _value, 1);
+    function bancorSendEthValue(IBancorNetwork bancor, address[] path, uint256 value) external {
+        bancor.convert.value(value)(path, value, 1);
     }
 
-    function bancorSendEthProportion(IBancorNetwork _bancor, address[] _path, uint256 _mul, uint256 _div) external {
-        uint256 value = address(this).balance.mul(_mul).div(_div);
-        _bancor.convert.value(value)(_path, value, 1);
+    function bancorSendEthProportion(IBancorNetwork bancor, address[] path, uint256 mul, uint256 div) external {
+        uint256 value = address(this).balance.mul(mul).div(div);
+        bancor.convert.value(value)(path, value, 1);
     }
 
-    function bancorApproveTokenAmount(IBancorNetwork _bancor, address[] _path, uint256 _amount) external {
-        if (ERC20(_path[0]).allowance(this, _bancor) == 0) {
-            ERC20(_path[0]).asmApprove(_bancor, uint256(-1));
+    function bancorApproveTokenAmount(IBancorNetwork bancor, address[] path, uint256 amount) external {
+        if (ERC20(path[0]).allowance(this, bancor) == 0) {
+            ERC20(path[0]).asmApprove(bancor, uint256(-1));
         }
-        _bancor.claimAndConvert(_path, _amount, 1);
+        bancor.claimAndConvert(path, amount, 1);
     }
 
-    function bancorApproveTokenProportion(IBancorNetwork _bancor, address[] _path, uint256 _mul, uint256 _div) external {
-        uint256 amount = ERC20(_path[0]).balanceOf(this).mul(_mul).div(_div);
-        if (ERC20(_path[0]).allowance(this, _bancor) == 0) {
-            ERC20(_path[0]).asmApprove(_bancor, uint256(-1));
+    function bancorApproveTokenProportion(IBancorNetwork bancor, address[] path, uint256 mul, uint256 div) external {
+        uint256 amount = ERC20(path[0]).balanceOf(this).mul(mul).div(div);
+        if (ERC20(path[0]).allowance(this, bancor) == 0) {
+            ERC20(path[0]).asmApprove(bancor, uint256(-1));
         }
-        _bancor.claimAndConvert(_path, amount, 1);
+        bancor.claimAndConvert(path, amount, 1);
     }
 
-    function bancorTransferTokenAmount(IBancorNetwork _bancor, address[] _path, uint256 _amount) external {
-        ERC20(_path[0]).asmTransfer(_bancor, _amount);
-        _bancor.convert(_path, _amount, 1);
+    function bancorTransferTokenAmount(IBancorNetwork bancor, address[] path, uint256 amount) external {
+        ERC20(path[0]).asmTransfer(bancor, amount);
+        bancor.convert(path, amount, 1);
     }
 
-    function bancorTransferTokenProportion(IBancorNetwork _bancor, address[] _path, uint256 _mul, uint256 _div) external {
-        uint256 amount = ERC20(_path[0]).balanceOf(this).mul(_mul).div(_div);
-        ERC20(_path[0]).asmTransfer(_bancor, amount);
-        _bancor.convert(_path, amount, 1);
+    function bancorTransferTokenProportion(IBancorNetwork bancor, address[] path, uint256 mul, uint256 div) external {
+        uint256 amount = ERC20(path[0]).balanceOf(this).mul(mul).div(div);
+        ERC20(path[0]).asmTransfer(bancor, amount);
+        bancor.convert(path, amount, 1);
     }
 
-    function bancorAlreadyTransferedTokenAmount(IBancorNetwork _bancor, address[] _path, uint256 _amount) external {
-        _bancor.convert(_path, _amount, 1);
+    function bancorAlreadyTransferedTokenAmount(IBancorNetwork bancor, address[] path, uint256 amount) external {
+        bancor.convert(path, amount, 1);
     }
 
-    function bancorAlreadyTransferedTokenProportion(IBancorNetwork _bancor, address[] _path, uint256 _mul, uint256 _div) external {
-        uint256 amount = ERC20(_path[0]).balanceOf(_bancor).mul(_mul).div(_div);
-        _bancor.convert(_path, amount, 1);
+    function bancorAlreadyTransferedTokenProportion(IBancorNetwork bancor, address[] path, uint256 mul, uint256 div) external {
+        uint256 amount = ERC20(path[0]).balanceOf(bancor).mul(mul).div(div);
+        bancor.convert(path, amount, 1);
     }
 
     // Kyber Network
 
-    function kyberSendEthProportion(IKyberNetworkProxy _kyber, ERC20 _fromToken, address _toToken, uint256 _mul, uint256 _div) external {
-        uint256 value = address(this).balance.mul(_mul).div(_div);
-        _kyber.trade.value(value)(
-            _fromToken,
+    function kyberSendEthProportion(IKyberNetworkProxy kyber, ERC20 fromToken, address toToken, uint256 mul, uint256 div) external {
+        uint256 value = address(this).balance.mul(mul).div(div);
+        kyber.trade.value(value)(
+            fromToken,
             value,
-            _toToken,
+            toToken,
             this,
             1 << 255,
             0,
@@ -215,14 +215,14 @@ contract MultiChanger is CanReclaimToken {
         );
     }
 
-    function kyberApproveTokenAmount(IKyberNetworkProxy _kyber, ERC20 _fromToken, address _toToken, uint256 _amount) external {
-        if (_fromToken.allowance(this, _kyber) == 0) {
-            _fromToken.asmApprove(_kyber, uint256(-1));
+    function kyberApproveTokenAmount(IKyberNetworkProxy kyber, ERC20 fromToken, address toToken, uint256 amount) external {
+        if (fromToken.allowance(this, kyber) == 0) {
+            fromToken.asmApprove(kyber, uint256(-1));
         }
-        _kyber.trade(
-            _fromToken,
-            _amount,
-            _toToken,
+        kyber.trade(
+            fromToken,
+            amount,
+            toToken,
             this,
             1 << 255,
             0,
@@ -230,8 +230,8 @@ contract MultiChanger is CanReclaimToken {
         );
     }
 
-    function kyberApproveTokenProportion(IKyberNetworkProxy _kyber, ERC20 _fromToken, address _toToken, uint256 _mul, uint256 _div) external {
-        uint256 amount = _fromToken.balanceOf(this).mul(_mul).div(_div);
-        this.kyberApproveTokenAmount(_kyber, _fromToken, _toToken, amount);
+    function kyberApproveTokenProportion(IKyberNetworkProxy kyber, ERC20 fromToken, address toToken, uint256 mul, uint256 div) external {
+        uint256 amount = fromToken.balanceOf(this).mul(mul).div(div);
+        this.kyberApproveTokenAmount(kyber, fromToken, toToken, amount);
     }
 }

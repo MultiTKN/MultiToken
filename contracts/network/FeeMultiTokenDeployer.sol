@@ -6,6 +6,10 @@ import "../FeeMultiToken.sol";
 
 
 contract FeeMultiTokenDeployer is AbstractDeployer {
+    function name() public view returns(string) {
+        return "FeeMultiTokenDeployer";
+    }
+
     function create(ERC20[] tokens, uint256[] weights, string name, string symbol, uint8 decimals)
         external returns(address)
     {

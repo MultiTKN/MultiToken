@@ -5,7 +5,11 @@ import "./AbstractDeployer.sol";
 import "../BasicMultiToken.sol";
 
 
-contract BasicMultiTokenDeployer is Ownable, AbstractDeployer {
+contract BasicMultiTokenDeployer is AbstractDeployer {
+    function name() public view returns(string) {
+        return "BasicMultiTokenDeployer";
+    }
+
     function create(ERC20[] tokens, string name, string symbol, uint8 decimals)
         external returns(address)
     {

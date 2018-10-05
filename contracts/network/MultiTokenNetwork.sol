@@ -11,27 +11,27 @@ contract MultiTokenNetwork is Pausable {
     event NewMultitoken(address indexed mtkn);
     event NewDeployer(uint256 indexed index, address indexed oldDeployer, address indexed newDeployer);
 
-    address[] public _multitokens;
-    mapping(uint256 => AbstractDeployer) public _deployers;
-
-    function multitokens(uint256 i) public view returns(address) {
-        return _multitokens[i];
-    }
+    address[] private _multitokens;
+    AbstractDeployer[] private _deployers;
 
     function multitokensCount() public view returns(uint256) {
         return _multitokens.length;
+    }
+
+    function multitokens(uint i) public view returns(address) {
+        return _multitokens[i];
     }
 
     function allMultitokens() public view returns(address[]) {
         return _multitokens;
     }
 
-    function deployers(uint256 i) public view returns(AbstractDeployer) {
-        return _deployers[i];
-    }
-
     function deployersCount() public view returns(uint256) {
         return _deployers.length;
+    }
+
+    function deployers(uint i) public view returns(AbstractDeployer) {
+        return _deployers[i];
     }
 
     function allWalletBalances(address wallet) public view returns(uint256[]) {
@@ -48,6 +48,14 @@ contract MultiTokenNetwork is Pausable {
             _multitokens[index] = _multitokens[_multitokens.length - 1];
         }
         _multitokens.length -= 1;
+    }
+
+    function deleteDeployer(uint index) public onlyOwner {
+        require(index < _deployers.length, "deleteDeployer: index out of range");
+        if (index != _deployers.length - 1) {
+            _deployers[index] = _deployers[_deployers.length - 1];
+        }
+        _deployers.length -= 1;
     }
 
     function disableBundlingMultitoken(uint index) public onlyOwner {
