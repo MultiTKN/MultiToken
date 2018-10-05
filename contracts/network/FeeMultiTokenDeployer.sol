@@ -6,11 +6,11 @@ import "../FeeMultiToken.sol";
 
 
 contract FeeMultiTokenDeployer is AbstractDeployer {
-    function create(ERC20[] theTokens, uint256[] tokenWeights, string theName, string theSymbol, uint8 theDecimals)
+    function create(ERC20[] tokens, uint256[] weights, string name, string symbol, uint8 decimals)
         external returns(address)
     {
         require(msg.sender == address(this), "Should be called only from deployer itself");
-        FeeMultiToken mtkn = new FeeMultiToken(theTokens, tokenWeights, theName, theSymbol, theDecimals);
+        FeeMultiToken mtkn = new FeeMultiToken(tokens, weights, name, symbol, decimals);
         mtkn.transferOwnership(msg.sender);
         return mtkn;
     }
