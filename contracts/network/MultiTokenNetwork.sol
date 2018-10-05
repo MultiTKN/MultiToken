@@ -69,6 +69,12 @@ contract MultiTokenNetwork is Pausable {
         IMultiToken(_multitokens[index]).disableChanges();
     }
 
+    function addDeployer(AbstractDeployer deployer) public onlyOwner whenNotPaused {
+        require(deployer.owner() == address(this), "addDeployer: first set MultiTokenNetwork as owner");
+        emit NewDeployer(_deployers.length, address(0), deployer);
+        _deployers.push(deployer);
+    }
+
     function setDeployer(uint256 index, AbstractDeployer deployer) public onlyOwner whenNotPaused {
         require(deployer.owner() == address(this), "setDeployer: first set MultiTokenNetwork as owner");
         emit NewDeployer(index, _deployers[index], deployer);
