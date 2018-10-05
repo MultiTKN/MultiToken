@@ -31,15 +31,16 @@ contract MultiToken is IMultiToken, BasicMultiToken {
         public BasicMultiToken(tokens, name, symbol, decimals)
     {
         require(tokenWeights.length == tokens.length, "Lenghts of tokens and tokenWeights array should be equal");
-
+        uint minimalWeight = 0;
         for (uint i = 0; i < tokens.length; i++) {
             require(tokenWeights[i] != 0, "The tokenWeights array should not contains zeros");
             require(_weights[tokens[i]] == 0, "The tokens array have duplicates");
             _weights[tokens[i]] = tokenWeights[i];
-            if (_minimalWeight == 0 || tokenWeights[i] < _minimalWeight) {
-                _minimalWeight = tokenWeights[i];
+            if (minimalWeight == 0 || tokenWeights[i] < minimalWeight) {
+                minimalWeight = tokenWeights[i];
             }
         }
+        _minimalWeight = minimalWeight;
     }
 
     function getReturn(address fromToken, address toToken, uint256 amount) public view returns(uint256 returnAmount) {
