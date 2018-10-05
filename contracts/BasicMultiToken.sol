@@ -36,7 +36,7 @@ contract BasicMultiToken is Ownable, StandardToken, DetailedERC20, ERC1003Token,
         require(decimals > 0, "constructor: _decimals should not be zero");
         require(bytes(name).length > 0, "constructor: name should not be empty");
         require(bytes(symbol).length > 0, "constructor: symbol should not be empty");
-        require(tokens.length >= 2, "Contract do not support less than 2 inner tokens");
+        require(tokens.length >= 2, "Contract does not support less than 2 inner tokens");
 
         _tokens = tokens;
     }
