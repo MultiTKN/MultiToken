@@ -116,15 +116,16 @@ contract FundMultiToken is LockableMultiTokenMixin {
             }
         }
 
-        _nextMinimalWeight = 0;
+        uint256 nextMinimalWeight = 0;
         _nextWeightStartBlock = block.number;
         for (i = 0; i < tokensCount(); i++) {
             require(theNextWeights[i] != 0, "The theNextWeights array should not contains zeros");
             _nextWeights[tokens(i)] = theNextWeights[i];
-            if (_nextMinimalWeight == 0 || theNextWeights[i] < _nextMinimalWeight) {
-                _nextMinimalWeight = theNextWeights[i];
+            if (nextMinimalWeight == 0 || theNextWeights[i] < nextMinimalWeight) {
+                nextMinimalWeight = theNextWeights[i];
             }
         }
+        _nextMinimalWeight = nextMinimalWeight;
     }
 
     function getReturn(address fromToken, address toToken, uint256 amount) public view returns(uint256) {        

@@ -31,7 +31,8 @@ contract MultiToken is IMultiToken, BasicMultiToken {
         public BasicMultiToken(tokens, name, symbol, decimals)
     {
         require(tokenWeights.length == tokens.length, "Lenghts of tokens and tokenWeights array should be equal");
-        uint minimalWeight = 0;
+
+        uint256 minimalWeight = 0;
         for (uint i = 0; i < tokens.length; i++) {
             require(tokenWeights[i] != 0, "The tokenWeights array should not contains zeros");
             require(_weights[tokens[i]] == 0, "The tokens array have duplicates");
@@ -71,6 +72,8 @@ contract MultiToken is IMultiToken, BasicMultiToken {
         _changesEnabled = false;
         emit ChangesDisabled();
     }
+
+    // Internal methods
 
     function setWeight(address token, uint256 newWeight) internal {
         _weights[token] = newWeight;
