@@ -17,111 +17,111 @@ contract MultiSeller is MultiChanger {
     }
 
     function sellForOrigin(
-        IMultiToken _mtkn,
-        uint256 _amount,
-        bytes _callDatas,
-        uint[] _starts // including 0 and LENGTH values
+        IMultiToken mtkn,
+        uint256 amount,
+        bytes callDatas,
+        uint[] starts // including 0 and LENGTH values
     )
         public
     {
         sell(
-            _mtkn,
-            _amount,
-            _callDatas,
-            _starts,
+            mtkn,
+            amount,
+            callDatas,
+            starts,
             tx.origin   // solium-disable-line security/no-tx-origin
         );
     }
 
     function sell(
-        IMultiToken _mtkn,
-        uint256 _amount,
-        bytes _callDatas,
-        uint[] _starts, // including 0 and LENGTH values
-        address _for
+        IMultiToken mtkn,
+        uint256 amount,
+        bytes callDatas,
+        uint[] starts, // including 0 and LENGTH values
+        address to
     )
         public
     {
-        _mtkn.asmTransferFrom(msg.sender, this, _amount);
-        _mtkn.unbundle(this, _amount);
-        change(_callDatas, _starts);
-        _for.transfer(address(this).balance);
+        mtkn.asmTransferFrom(msg.sender, this, amount);
+        mtkn.unbundle(this, amount);
+        change(callDatas, starts);
+        to.transfer(address(this).balance);
     }
 
     // DEPRECATED:
 
     function sellOnApproveForOrigin(
-        IMultiToken _mtkn,
-        uint256 _amount,
-        ERC20 _throughToken,
-        address[] _exchanges,
-        bytes _datas,
-        uint[] _datasIndexes // including 0 and LENGTH values
+        IMultiToken mtkn,
+        uint256 amount,
+        ERC20 throughToken,
+        address[] exchanges,
+        bytes datas,
+        uint[] datasIndexes // including 0 and LENGTH values
     )
         public
     {
         sellOnApprove(
-            _mtkn,
-            _amount,
-            _throughToken,
-            _exchanges,
-            _datas,
-            _datasIndexes,
+            mtkn,
+            amount,
+            throughToken,
+            exchanges,
+            datas,
+            datasIndexes,
             tx.origin       // solium-disable-line security/no-tx-origin
         );
     }
 
     function sellOnApprove(
-        IMultiToken _mtkn,
-        uint256 _amount,
-        ERC20 _throughToken,
-        address[] _exchanges,
-        bytes _datas,
-        uint[] _datasIndexes, // including 0 and LENGTH values
-        address _for
+        IMultiToken mtkn,
+        uint256 amount,
+        ERC20 throughToken,
+        address[] exchanges,
+        bytes datas,
+        uint[] datasIndexes, // including 0 and LENGTH values
+        address to
     )
         public
     {
-        if (_throughToken == address(0)) {
-            require(_mtkn.tokensCount() == _exchanges.length, "sell: _mtkn should have the same tokens count as _exchanges");
+        if (throughToken == address(0)) {
+            require(mtkn.tokensCount() == exchanges.length, "sell: mtkn should have the same tokens count as exchanges");
         } else {
-            require(_mtkn.tokensCount() + 1 == _exchanges.length, "sell: _mtkn should have tokens count + 1 equal _exchanges length");
+            require(mtkn.tokensCount() + 1 == exchanges.length, "sell: mtkn should have tokens count + 1 equal exchanges length");
         }
-        require(_datasIndexes.length == _exchanges.length + 1, "sell: _datasIndexes should start with 0 and end with LENGTH");
+        require(datasIndexes.length == exchanges.length + 1, "sell: datasIndexes should start with 0 and end with LENGTH");
 
-        _mtkn.transferFrom(msg.sender, this, _amount);
-        _mtkn.unbundle(this, _amount);
+        mtkn.transferFrom(msg.sender, this, amount);
+        mtkn.unbundle(this, amount);
 
-        for (uint i = 0; i < _exchanges.length; i++) {
-            bytes memory data = new bytes(_datasIndexes[i + 1] - _datasIndexes[i]);
-            for (uint j = _datasIndexes[i]; j < _datasIndexes[i + 1]; j++) {
-                data[j - _datasIndexes[i]] = _datas[j];
+        for (uint i = 0; i < exchanges.length; i++) {
+            bytes memory data = new bytes(datasIndexes[i + 1] - datasIndexes[i]);
+            for (uint j = datasIndexes[i]; j < datasIndexes[i + 1]; j++) {
+                data[j - datasIndexes[i]] = datas[j];
             }
             if (data.length == 0) {
                 continue;
             }
 
-            if (i == _exchanges.length - 1 && _throughToken != address(0)) {
-                if (_throughToken.allowance(this, _exchanges[i]) == 0) {
-                    _throughToken.asmApprove(_exchanges[i], uint256(-1));
+            if (i == exchanges.length - 1 && throughToken != address(0)) {
+                if (throughToken.allowance(this, exchanges[i]) == 0) {
+                    throughToken.asmApprove(exchanges[i], uint256(-1));
                 }
             } else {
-                ERC20 token = _mtkn.tokens(i);
-                if (_exchanges[i] == 0) {
-                    token.asmTransfer(_for, token.balanceOf(this));
+                ERC20 token = mtkn.tokens(i);
+                if (exchanges[i] == 0) {
+                    token.asmTransfer(to, token.balanceOf(this));
                     continue;
                 }
-                if (token.allowance(this, _exchanges[i]) == 0) {
-                    token.asmApprove(_exchanges[i], uint256(-1));
+                if (token.allowance(this, exchanges[i]) == 0) {
+                    token.asmApprove(exchanges[i], uint256(-1));
                 }
             }
             // solium-disable-next-line security/no-low-level-calls
-            require(_exchanges[i].call(data), "sell: exchange arbitrary call failed");
+            require(exchanges[i].call(data), "sell: exchange arbitrary call failed");
         }
 
-        _for.transfer(address(this).balance);
-        if (_throughToken != address(0) && _throughToken.balanceOf(this) > 0) {
-            _throughToken.asmTransfer(_for, _throughToken.balanceOf(this));
+        to.transfer(address(this).balance);
+        if (throughToken != address(0) && throughToken.balanceOf(this) > 0) {
+            throughToken.asmTransfer(to, throughToken.balanceOf(this));
         }
     }
 }
