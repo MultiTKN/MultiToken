@@ -8,59 +8,74 @@ import "./BasicMultiToken.sol";
 contract MultiToken is IMultiToken, BasicMultiToken {
     using CheckedERC20 for ERC20;
 
-    uint256 internal minimalWeight;
-    bool public changesEnabled = true;
+    mapping(address => uint256) private _weights;
+    uint256 internal _minimalWeight;
+    bool private _changesEnabled = true;
 
     event ChangesDisabled();
 
     modifier whenChangesEnabled {
-        require(changesEnabled, "Operation can't be performed because changes are disabled");
+        require(_changesEnabled, "Operation can't be performed because changes are disabled");
         _;
     }
 
-    function init(ERC20[] _tokens, uint256[] _weights, string _name, string _symbol, uint8 _decimals) public {
-        super.init(_tokens, _name, _symbol, _decimals);
-        require(_weights.length == tokens.length, "Lenghts of _tokens and _weights array should be equal");
+    function weights(address _token) public view returns(uint256) {
+        return _weights[_token];
+    }
+
+    function changesEnabled() public view returns(bool) {
+        return _changesEnabled;
+    }
+
+    constructor(ERC20[] tokens, uint256[] tokenWeights, string name, string symbol, uint8 decimals) 
+        public BasicMultiToken(tokens, name, symbol, decimals)
+    {
+        require(tokenWeights.length == tokens.length, "Lenghts of tokens and tokenWeights array should be equal");
+
+        uint256 minimalWeight = 0;
         for (uint i = 0; i < tokens.length; i++) {
-            require(_weights[i] != 0, "The _weights array should not contains zeros");
-            require(weights[tokens[i]] == 0, "The _tokens array have duplicates");
-            weights[tokens[i]] = _weights[i];
-            if (minimalWeight == 0 || _weights[i] < minimalWeight) {
-                minimalWeight = _weights[i];
+            require(tokenWeights[i] != 0, "The tokenWeights array should not contains zeros");
+            require(_weights[tokens[i]] == 0, "The tokens array have duplicates");
+            _weights[tokens[i]] = tokenWeights[i];
+            if (minimalWeight == 0 || tokenWeights[i] < minimalWeight) {
+                minimalWeight = tokenWeights[i];
             }
         }
+        _minimalWeight = minimalWeight;
     }
 
-    function init2(ERC20[] _tokens, uint256[] _weights, string _name, string _symbol, uint8 _decimals) public {
-        init(_tokens, _weights, _name, _symbol, _decimals);
-    }
-
-    function getReturn(address _fromToken, address _toToken, uint256 _amount) public view returns(uint256 returnAmount) {
-        if (weights[_fromToken] > 0 && weights[_toToken] > 0 && _fromToken != _toToken) {
-            uint256 fromBalance = ERC20(_fromToken).balanceOf(this);
-            uint256 toBalance = ERC20(_toToken).balanceOf(this);
-            returnAmount = _amount.mul(toBalance).mul(weights[_fromToken]).div(
-                _amount.mul(weights[_fromToken]).div(minimalWeight).add(fromBalance).mul(weights[_toToken])
+    function getReturn(address fromToken, address toToken, uint256 amount) public view returns(uint256 returnAmount) {
+        if (_weights[fromToken] > 0 && _weights[toToken] > 0 && fromToken != toToken) {
+            uint256 fromBalance = ERC20(fromToken).balanceOf(this);
+            uint256 toBalance = ERC20(toToken).balanceOf(this);
+            returnAmount = amount.mul(toBalance).mul(_weights[fromToken]).div(
+                amount.mul(_weights[fromToken]).div(_minimalWeight).add(fromBalance).mul(_weights[toToken])
             );
         }
     }
 
-    function change(address _fromToken, address _toToken, uint256 _amount, uint256 _minReturn) public whenChangesEnabled notInLendingMode returns(uint256 returnAmount) {
-        returnAmount = getReturn(_fromToken, _toToken, _amount);
+    function change(address fromToken, address toToken, uint256 amount, uint256 minReturn) public whenChangesEnabled notInLendingMode returns(uint256 returnAmount) {
+        returnAmount = getReturn(fromToken, toToken, amount);
         require(returnAmount > 0, "The return amount is zero");
-        require(returnAmount >= _minReturn, "The return amount is less than _minReturn value");
+        require(returnAmount >= minReturn, "The return amount is less than minReturn value");
 
-        ERC20(_fromToken).checkedTransferFrom(msg.sender, this, _amount);
-        ERC20(_toToken).checkedTransfer(msg.sender, returnAmount);
+        ERC20(fromToken).checkedTransferFrom(msg.sender, this, amount);
+        ERC20(toToken).checkedTransfer(msg.sender, returnAmount);
 
-        emit Change(_fromToken, _toToken, msg.sender, _amount, returnAmount);
+        emit Change(fromToken, toToken, msg.sender, amount, returnAmount);
     }
 
     // Admin methods
 
     function disableChanges() public onlyOwner {
-        require(changesEnabled, "Changes are already disabled");
-        changesEnabled = false;
+        require(_changesEnabled, "Changes are already disabled");
+        _changesEnabled = false;
         emit ChangesDisabled();
+    }
+
+    // Internal methods
+
+    function setWeight(address token, uint256 newWeight) internal {
+        _weights[token] = newWeight;
     }
 }
