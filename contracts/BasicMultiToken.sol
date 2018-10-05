@@ -30,15 +30,15 @@ contract BasicMultiToken is Ownable, StandardToken, DetailedERC20, ERC1003Token,
         _;
     }
 
-    constructor(ERC20[] theTokens, string theName, string theSymbol, uint8 theDecimals)
-        public DetailedERC20(theName, theSymbol, theDecimals)
+    constructor(ERC20[] tokens, string name, string symbol, uint8 decimals)
+        public DetailedERC20(name, symbol, decimals)
     {
-        require(theDecimals > 0, "constructor: _decimals should not be zero");
-        require(bytes(theName).length > 0, "constructor: _name should not be empty");
-        require(bytes(theSymbol).length > 0, "constructor: _symbol should not be empty");
-        require(theTokens.length >= 2, "Contract do not support less than 2 inner tokens");
+        require(decimals > 0, "constructor: _decimals should not be zero");
+        require(bytes(name).length > 0, "constructor: name should not be empty");
+        require(bytes(symbol).length > 0, "constructor: symbol should not be empty");
+        require(tokens.length >= 2, "Contract do not support less than 2 inner tokens");
 
-        _tokens = theTokens;
+        _tokens = tokens;
     }
 
     function tokensCount() public view returns(uint) {
@@ -53,7 +53,7 @@ contract BasicMultiToken is Ownable, StandardToken, DetailedERC20, ERC1003Token,
         return _inLendingMode;
     }
 
-    function bundlingEnabled() public view returns(uint) {
+    function bundlingEnabled() public view returns(bool) {
         return _bundlingEnabled;
     }
 
