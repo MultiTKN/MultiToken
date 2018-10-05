@@ -7,12 +7,11 @@ import "../interface/IMultiToken.sol";
 
 
 contract MultiTokenNetwork is Pausable {
+    address[] private _multitokens;
+    AbstractDeployer[] private _deployers;
 
     event NewMultitoken(address indexed mtkn);
     event NewDeployer(uint256 indexed index, address indexed oldDeployer, address indexed newDeployer);
-
-    address[] private _multitokens;
-    AbstractDeployer[] private _deployers;
 
     function multitokensCount() public view returns(uint256) {
         return _multitokens.length;

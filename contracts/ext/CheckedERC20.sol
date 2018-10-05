@@ -48,58 +48,58 @@ library CheckedERC20 {
         }
     }
 
-    function asmTransfer(address _token, address _to, uint256 _value) internal returns(bool) {
-        require(isContract(_token));
+    function asmTransfer(address token, address to, uint256 value) internal returns(bool) {
+        require(isContract(token));
         // solium-disable-next-line security/no-low-level-calls
-        require(_token.call(bytes4(keccak256("transfer(address,uint256)")), _to, _value));
+        require(token.call(bytes4(keccak256("transfer(address,uint256)")), to, value));
         return handleReturnBool();
     }
 
-    function asmTransferFrom(address _token, address _from, address _to, uint256 _value) internal returns(bool) {
-        require(isContract(_token));
+    function asmTransferFrom(address token, address from, address to, uint256 value) internal returns(bool) {
+        require(isContract(token));
         // solium-disable-next-line security/no-low-level-calls
-        require(_token.call(bytes4(keccak256("transferFrom(address,address,uint256)")), _from, _to, _value));
+        require(token.call(bytes4(keccak256("transferFrom(address,address,uint256)")), from, to, value));
         return handleReturnBool();
     }
 
-    function asmApprove(address _token, address _spender, uint256 _value) internal returns(bool) {
-        require(isContract(_token));
+    function asmApprove(address token, address spender, uint256 value) internal returns(bool) {
+        require(isContract(token));
         // solium-disable-next-line security/no-low-level-calls
-        require(_token.call(bytes4(keccak256("approve(address,uint256)")), _spender, _value));
+        require(token.call(bytes4(keccak256("approve(address,uint256)")), spender, value));
         return handleReturnBool();
     }
 
     //
 
-    function checkedTransfer(ERC20 _token, address _to, uint256 _value) internal {
-        if (_value > 0) {
-            uint256 balance = _token.balanceOf(this);
-            asmTransfer(_token, _to, _value);
-            require(_token.balanceOf(this) == balance.sub(_value), "checkedTransfer: Final balance didn't match");
+    function checkedTransfer(ERC20 token, address to, uint256 value) internal {
+        if (value > 0) {
+            uint256 balance = token.balanceOf(this);
+            asmTransfer(token, to, value);
+            require(token.balanceOf(this) == balance.sub(value), "checkedTransfer: Final balance didn't match");
         }
     }
 
-    function checkedTransferFrom(ERC20 _token, address _from, address _to, uint256 _value) internal {
-        if (_value > 0) {
-            uint256 toBalance = _token.balanceOf(_to);
-            asmTransferFrom(_token, _from, _to, _value);
-            require(_token.balanceOf(_to) == toBalance.add(_value), "checkedTransfer: Final balance didn't match");
+    function checkedTransferFrom(ERC20 token, address from, address to, uint256 value) internal {
+        if (value > 0) {
+            uint256 toBalance = token.balanceOf(to);
+            asmTransferFrom(token, from, to, value);
+            require(token.balanceOf(to) == toBalance.add(value), "checkedTransfer: Final balance didn't match");
         }
     }
 
     //
 
-    function asmName(address _token) internal view returns(bytes32) {
-        require(isContract(_token));
+    function asmName(address token) internal view returns(bytes32) {
+        require(isContract(token));
         // solium-disable-next-line security/no-low-level-calls
-        require(_token.call(bytes4(keccak256("name()"))));
+        require(token.call(bytes4(keccak256("name()"))));
         return handleReturnBytes32();
     }
 
-    function asmSymbol(address _token) internal view returns(bytes32) {
-        require(isContract(_token));
+    function asmSymbol(address token) internal view returns(bytes32) {
+        require(isContract(token));
         // solium-disable-next-line security/no-low-level-calls
-        require(_token.call(bytes4(keccak256("symbol()"))));
+        require(token.call(bytes4(keccak256("symbol()"))));
         return handleReturnBytes32();
     }
 }

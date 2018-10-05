@@ -17,24 +17,24 @@ contract EtherToken is MintableToken, BurnableToken {
         depositTo(msg.sender);
     }
 
-    function depositTo(address _to) public payable {
-        owner = _to;
-        mint(_to, msg.value);
+    function depositTo(address to) public payable {
+        owner = to;
+        mint(to, msg.value);
         delete owner;
     }
 
-    function withdraw(uint _amount) public {
-        withdrawTo(msg.sender, _amount);
+    function withdraw(uint amount) public {
+        withdrawTo(msg.sender, amount);
     }
 
-    function withdrawTo(address _to, uint _amount) public {
-        burn(_amount);
-        _to.transfer(_amount);
+    function withdrawTo(address to, uint amount) public {
+        burn(amount);
+        to.transfer(amount);
     }
 
-    function withdrawFrom(address _from, uint _amount) public {
-        this.transferFrom(_from, this, _amount);
-        this.burn(_amount);
-        _from.transfer(_amount);
+    function withdrawFrom(address from, uint amount) public {
+        this.transferFrom(from, this, amount);
+        this.burn(amount);
+        from.transfer(amount);
     }
 }

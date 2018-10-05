@@ -134,7 +134,7 @@ contract BasicMultiToken is Ownable, StandardToken, DetailedERC20, ERC1003Token,
         uint256 prevBalance = token.balanceOf(this);
         token.asmTransfer(to, amount);
         _inLendingMode += 1;
-        require(caller_.makeCall.value(msg.value)(target, data), "lend: arbitrary call failed");
+        require(caller().makeCall.value(msg.value)(target, data), "lend: arbitrary call failed");
         _inLendingMode -= 1;
         require(token.balanceOf(this) >= prevBalance, "lend: lended token must be refilled");
     }
