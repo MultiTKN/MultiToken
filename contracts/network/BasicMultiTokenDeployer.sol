@@ -6,7 +6,7 @@ import "../BasicMultiToken.sol";
 
 
 contract BasicMultiTokenDeployer is AbstractDeployer {
-    function name() public view returns(string) {
+    function title() public view returns(string) {
         return "BasicMultiTokenDeployer";
     }
 

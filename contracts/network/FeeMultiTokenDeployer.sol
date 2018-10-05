@@ -6,7 +6,7 @@ import "../FeeMultiToken.sol";
 
 
 contract FeeMultiTokenDeployer is AbstractDeployer {
-    function name() public view returns(string) {
+    function title() public view returns(string) {
         return "FeeMultiTokenDeployer";
     }
 
