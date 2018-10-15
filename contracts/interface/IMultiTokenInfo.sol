@@ -36,7 +36,7 @@ contract IMultiTokenInfo {
         uint256[] _weights
         );
 
-    bytes4 internal constant InterfaceId_IMultiTokenInfo = 0x6d429c45;
+    bytes4 public constant InterfaceId_IMultiTokenInfo = 0x6d429c45;
 	  /**
 	   * 0x6d429c45 ===
 	   *   bytes4(keccak256('allTokens(address)')) ^
