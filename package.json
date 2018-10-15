@@ -28,6 +28,7 @@
     "node-fetch": "^2.2.0",
     "openzeppelin-solidity": "^1.12.0",
     "solidity-coverage": "^0.5.11",
+    "solidity-profiler": "../solidity-profiler",
     "solium": "^1.1.8",
     "truffle": "^4.1.14",
     "web3": "^1.0.0-beta.36",
@@ -43,7 +44,6 @@
     "lint": "npm run lint:js && npm run lint:sol",
     "lint:fix": "npm run lint:js:fix && npm run lint:sol:fix",
     "coverage": "./node_modules/.bin/solidity-coverage",
-    "profiler": "./node_modules/.bin/solidity-profiler",
     "rpc": "scripts/rpc.sh"
   },
   "repository": {

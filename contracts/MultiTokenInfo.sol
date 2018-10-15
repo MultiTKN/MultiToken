@@ -1,14 +1,19 @@
 pragma solidity ^0.4.24;
 
 import "openzeppelin-solidity/contracts/token/ERC20/DetailedERC20.sol";
+import "openzeppelin-solidity/contracts/introspection/SupportsInterfaceWithLookup.sol";
 import "./interface/IBasicMultiToken.sol";
 import "./interface/IMultiToken.sol";
 import "./interface/IMultiTokenInfo.sol";
 import "./ext/CheckedERC20.sol";
 
 
-contract MultiTokenInfo is IMultiTokenInfo {
+contract MultiTokenInfo is IMultiTokenInfo, SupportsInterfaceWithLookup {
     using CheckedERC20 for DetailedERC20;
+
+    constructor() public {
+        _registerInterface(InterfaceId_IMultiTokenInfo);
+    }
 
     // BasicMultiToken
 
