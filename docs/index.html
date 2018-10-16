@@ -27,7 +27,7 @@
             <div class="form-row">
                 <div class="form-group col-md-6">
                     <label for="multiTokenNetworkAddress">MultiToken Network Address</label>
-                    <input type="text" class="form-control" id="multiTokenNetworkAddress" value="0x7C10de4576BEb3DdF6B666092927b409c5C52E16" placeholder="0x0000000000000000000000000000000000000000">
+                    <input type="text" class="form-control" id="multiTokenNetworkAddress" value="0x0288C13F98d85C817191710BE24E96ec75bD9914" placeholder="0x0000000000000000000000000000000000000000">
                 </div>
                 <div class="form-group col-md-6">
                     <label for="multiTokenInfoAddress">MultiToken Info Address</label>
@@ -72,17 +72,19 @@
 						</div>
 					</div>
 					<div class="form-group">
-                        <div class="form-group">
-                            <label for="multitokenName">MultiToken name:</label>
-                            <input type="text" class="form-control" id="multitokenName" disabled>
-                        </div>
-                        <div class="form-group">
-                            <label for="multitokenSymbol">MultiToken symbol:</label>
-                            <input type="text" class="form-control" id="multitokenSymbol" disabled>
-                        </div>
-                        <div class="form-group">
-                            <label for="multitokenDecimals">MultiToken decimals:</label>
-                            <input type="text" class="form-control" id="multitokenDecimals" disabled>
+                        <div class="form-row">
+                            <div class="form-group col-md-4">
+                                <label for="multitokenName">MultiToken name:</label>
+                                <input type="text" class="form-control" id="multitokenName" disabled>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="multitokenSymbol">MultiToken symbol:</label>
+                                <input type="text" class="form-control" id="multitokenSymbol" disabled>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="multitokenDecimals">MultiToken decimals:</label>
+                                <input type="text" class="form-control" id="multitokenDecimals" disabled>
+                            </div>
                         </div>
 
                         <label for="tokens">MultiToken tokens:</label>
@@ -136,14 +138,26 @@
                                 <button id="multiTokenDeployers_copy" class="btn btn-outline-secondary" type="button">Copy</button>
                             </div>
 						</div>
-					</div>
-                    <div class="form-group">
-                        <label for="new-multitoken-name">MultiToken name:</label>
-                        <input type="text" class="form-control" id="new-multitoken-name" value="" placeholder="">
                     </div>
-                    <div class="form-group">
-                        <label for="new-multitoken-symbol">MultiToken symbol:</label>
-                        <input type="text" class="form-control" id="new-multitoken-symbol" value="" placeholder="">
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="new-multitoken-name">MultiToken name:</label>
+                            <input type="text" class="form-control" id="new-multitoken-name" value="" placeholder="">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="new-multitoken-symbol">MultiToken symbol:</label>
+                            <input type="text" class="form-control" id="new-multitoken-symbol" value="" placeholder="">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="new-multitoken-price-mul">Price MUL:</label>
+                            <input type="text" class="form-control" id="new-multitoken-price-mul" value="1" placeholder="">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="new-multitoken-price-div">Price DIV:</label>
+                            <input type="text" class="form-control" id="new-multitoken-price-div" value="1000" placeholder="">
+                        </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group col-md-6">
