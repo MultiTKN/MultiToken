@@ -4,9 +4,9 @@ import "../../AbstractDeployer.sol";
 import "../AstraMultiToken.sol";
 
 
-contract AstraFeeMultiTokenDeployer is AbstractDeployer {
+contract AstraMultiTokenDeployer is AbstractDeployer {
     function title() public view returns(string) {
-        return "AstraFeeMultiTokenDeployer";
+        return "AstraMultiTokenDeployer";
     }
 
     function create(ERC20[] tokens, uint256[] weights, string name, string symbol)
