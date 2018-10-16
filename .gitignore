@@ -9,8 +9,3 @@ coverage/
 coverageEnv/
 allFiredEvents
 scTopics
-
-profiler.json
-profiler/
-profilerEnv/
-spTopics

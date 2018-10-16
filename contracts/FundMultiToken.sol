@@ -1,6 +1,7 @@
 pragma solidity ^0.4.24;
 
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+import "./interface/IFundMultiToken.sol";
 import "./MultiToken.sol";
 
 
@@ -59,14 +60,20 @@ contract LockableMultiTokenMixin is ManageableOrOwnableMultiTokenMixin {
 }
 
 
-contract FundMultiToken is LockableMultiTokenMixin {
+contract FundMultiToken is IFundMultiToken, LockableMultiTokenMixin {
     mapping(address => uint256) private _nextWeights;
     uint256 private _nextMinimalWeight;
     uint256 private _nextWeightStartBlock;
     uint256 private _nextWeightBlockDelay = 100;
     uint256 private _nextWeightBlockDelayUpdate;
 
-    event WeightsChanged(uint256 startingBlockNumber, uint256 endingBlockNumber, uint256 _nextWeightBlockDelay);
+    event WeightsChanged(uint256 startingBlockNumber, uint256 endingBlockNumber, uint256 nextWeightBlockDelay);
+
+    constructor(ERC20[] tokens, uint256[] tokenWeights, string name, string symbol, uint8 decimals) 
+        public MultiToken(tokens, tokenWeights, name, symbol, decimals)
+    {
+        _registerInterface(InterfaceId_IFundMultiToken);
+    }
 
     function nextWeights(address token) public view returns(uint256) {
         return _nextWeights[token];

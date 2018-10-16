@@ -42,6 +42,8 @@ contract MultiToken is IMultiToken, BasicMultiToken {
             }
         }
         _minimalWeight = minimalWeight;
+
+        _registerInterface(InterfaceId_IMultiToken);
     }
 
     function getReturn(address fromToken, address toToken, uint256 amount) public view returns(uint256 returnAmount) {

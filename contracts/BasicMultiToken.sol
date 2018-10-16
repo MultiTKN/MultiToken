@@ -3,12 +3,13 @@ pragma solidity ^0.4.24;
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/DetailedERC20.sol";
+import "openzeppelin-solidity/contracts/introspection/SupportsInterfaceWithLookup.sol";
 import "./ext/CheckedERC20.sol";
 import "./ext/ERC1003Token.sol";
 import "./interface/IBasicMultiToken.sol";
 
 
-contract BasicMultiToken is Ownable, StandardToken, DetailedERC20, ERC1003Token, IBasicMultiToken {
+contract BasicMultiToken is Ownable, StandardToken, DetailedERC20, ERC1003Token, IBasicMultiToken, SupportsInterfaceWithLookup {
     using CheckedERC20 for ERC20;
     using CheckedERC20 for DetailedERC20;
 
@@ -39,6 +40,8 @@ contract BasicMultiToken is Ownable, StandardToken, DetailedERC20, ERC1003Token,
         require(tokens.length >= 2, "Contract does not support less than 2 inner tokens");
 
         _tokens = tokens;
+
+        _registerInterface(InterfaceId_IBasicMultiToken);
     }
 
     function tokensCount() public view returns(uint) {

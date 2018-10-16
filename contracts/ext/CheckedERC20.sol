@@ -34,15 +34,20 @@ library CheckedERC20 {
     function handleReturnBytes32() internal pure returns(bytes32 result) {
         // solium-disable-next-line security/no-inline-assembly
         assembly {
-            if eq(returndatasize(), 32) { // not a std erc20
+            switch eq(returndatasize(), 32) // not a std erc20
+            case 1 {
                 returndatacopy(0, 0, 32)
                 result := mload(0)
             }
-            if gt(returndatasize(), 32) { // std erc20
+
+            switch gt(returndatasize(), 32) // std erc20
+            case 1 {
                 returndatacopy(0, 64, 32)
                 result := mload(0)
             }
-            if lt(returndatasize(), 32) { // anything else, should revert for safety
+
+            switch lt(returndatasize(), 32) // anything else, should revert for safety
+            case 1 {
                 revert(0, 0)
             }
         }

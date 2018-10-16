@@ -3,25 +3,15 @@ pragma solidity ^0.4.24;
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "./ext/CheckedERC20.sol";
+import "./FeeBasicMultiToken.sol";
 import "./MultiToken.sol";
 
 
-contract FeeMultiToken is Ownable, MultiToken {
+contract FeeMultiToken is MultiToken, FeeBasicMultiToken {
     using CheckedERC20 for ERC20;
 
-    uint256 constant public TOTAL_PERCRENTS = 1000000;
-    uint256 internal _lendFee;
     uint256 internal _changeFee;
     uint256 internal _referralFee;
-
-    constructor(ERC20[] tokens, uint256[] weights, string name, string symbol, uint8 /*_decimals*/)
-        public MultiToken(tokens, weights, name, symbol, 18)
-    {
-    }
-
-    function lendFee() public view returns(uint256) {
-        return _lendFee;
-    }
 
     function changeFee() public view returns(uint256) {
         return _changeFee;
@@ -29,11 +19,6 @@ contract FeeMultiToken is Ownable, MultiToken {
 
     function referralFee() public view returns(uint256) {
         return _referralFee;
-    }
-
-    function setLendFee(uint256 theLendFee) public onlyOwner {
-        require(theLendFee <= 30000, "setLendFee: fee should be not greater than 3%");
-        _lendFee = theLendFee;
     }
 
     function setChangeFee(uint256 theChangeFee) public onlyOwner {
@@ -61,11 +46,5 @@ contract FeeMultiToken is Ownable, MultiToken {
             .mul(_referralFee).div(TOTAL_PERCRENTS);
 
         ERC20(toToken).checkedTransfer(ref, refferalAmount);
-    }
-
-    function lend(address to, ERC20 token, uint256 amount, address target, bytes data) public payable {
-        uint256 prevBalance = token.balanceOf(this);
-        super.lend(to, token, amount, target, data);
-        require(token.balanceOf(this) >= prevBalance.mul(TOTAL_PERCRENTS.add(_lendFee)).div(TOTAL_PERCRENTS), "lend: tokens must be returned with lend fee");
     }
 }

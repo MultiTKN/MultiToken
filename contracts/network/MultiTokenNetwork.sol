@@ -2,7 +2,7 @@ pragma solidity ^0.4.24;
 
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-solidity/contracts/lifecycle/Pausable.sol";
-import "./AbstractDeployer.sol";
+import "../AbstractDeployer.sol";
 import "../interface/IMultiToken.sol";
 
 
