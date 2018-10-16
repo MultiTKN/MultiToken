@@ -4,7 +4,7 @@ import "../../AbstractDeployer.sol";
 import "../AstraBasicMultiToken.sol";
 
 
-contract BasicMultiTokenDeployer is AbstractDeployer {
+contract AstraBasicMultiTokenDeployer is AbstractDeployer {
     function title() public view returns(string) {
         return "AstraBasicMultiTokenDeployer";
     }
