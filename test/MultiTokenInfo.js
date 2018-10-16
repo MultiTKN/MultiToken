@@ -1,6 +1,3 @@
-
-/* @flow */
-
 require('chai')
     .use(require('chai-as-promised'))
     .use(require('chai-bignumber')(web3.BigNumber))
@@ -34,7 +31,6 @@ contract('MultiTokenInfo', function ([_, wallet1, wallet2, wallet3, wallet4, wal
 
         lmn = await Token.new('LMN');
         await lmn.mint(_, 100e6);
-
     });
 
     it('should provide working method allTokens', async function () {
