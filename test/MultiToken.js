@@ -37,16 +37,16 @@ contract('MultiToken', function ([_, wallet1, wallet2, wallet3, wallet4, wallet5
 
     it.only('should failure on wrong constructor arguments', async function () {
         assertRevert(function() {
-            multi.contract.init["address[],uint256[],string,string,uint8"]([abc.address, xyz.address], [1, 1, 1], 'Multi', '1ABC_1XYZ', 18, { from: _ })
+            multi.contract.init["address[],uint256[],string,string,uint8"]([abc.address, xyz.address], [1, 1, 1], 'Multi', '1ABC_1XYZ', 18, { from: _, gas: 200000})
         });
         assertRevert(function() {
-            multi.contract.init["address[],uint256[],string,string,uint8"]([abc.address, xyz.address], [1], 'Multi', '1ABC_1XYZ', 18, { from: _ })
+            multi.contract.init["address[],uint256[],string,string,uint8"]([abc.address, xyz.address], [1], 'Multi', '1ABC_1XYZ', 18, { from: _, gas: 200000 })
         });
         assertRevert(function() {
-            multi.contract.init["address[],uint256[],string,string,uint8"]([abc.address, xyz.address], [1, 0], 'Multi', '1ABC_0XYZ', 18, { from: _ })
+            multi.contract.init["address[],uint256[],string,string,uint8"]([abc.address, xyz.address], [1, 0], 'Multi', '1ABC_0XYZ', 18, { from: _, gas: 200000 })
         });
         assertRevert(function() {
-            multi.contract.init["address[],uint256[],string,string,uint8"]([abc.address, xyz.address], [0, 1], 'Multi', '0ABC_1XYZ', 18, { from: _ })
+            multi.contract.init["address[],uint256[],string,string,uint8"]([abc.address, xyz.address], [0, 1], 'Multi', '0ABC_1XYZ', 18, { from: _, gas: 200000 })
         });
     });
 
