@@ -1,7 +1,5 @@
-
-/* @flow */
-
 const EVMRevert = require('./helpers/EVMRevert');
+const { assertRevert } = require('./helpers/assertRevert');
 
 require('chai')
     .use(require('chai-as-promised'))
@@ -29,37 +27,51 @@ contract('MultiToken', function ([_, wallet1, wallet2, wallet3, wallet4, wallet5
 
         lmn = await Token.new('LMN');
         await lmn.mint(_, 100e6);
+
+        multi = await MultiToken.new();
     });
 
     it('should failure on wrong constructor arguments', async function () {
-        await MultiToken.new([abc.address, xyz.address], [1, 1, 1], 'Multi', '1ABC_1XYZ', 18).should.be.rejectedWith(EVMRevert);
-        await MultiToken.new([abc.address, xyz.address], [1], 'Multi', '1ABC_1XYZ', 18).should.be.rejectedWith(EVMRevert);
-        await MultiToken.new([abc.address, xyz.address], [1, 0], 'Multi', '1ABC_0XYZ', 18).should.be.rejectedWith(EVMRevert);
-        await MultiToken.new([abc.address, xyz.address], [0, 1], 'Multi', '0ABC_1XYZ', 18).should.be.rejectedWith(EVMRevert);
+        assertRevert(function () {
+            multi.contract.init['address[],uint256[],string,string,uint8']([abc.address, xyz.address], [1, 1, 1], 'Multi', '1ABC_1XYZ', 18, { from: _, gas: 8000000 });
+        });
+        assertRevert(function () {
+            multi.contract.init['address[],uint256[],string,string,uint8']([abc.address, xyz.address], [1], 'Multi', '1ABC_1XYZ', 18, { from: _, gas: 8000000 });
+        });
+        assertRevert(function () {
+            multi.contract.init['address[],uint256[],string,string,uint8']([abc.address, xyz.address], [1, 0], 'Multi', '1ABC_0XYZ', 18, { from: _, gas: 8000000 });
+        });
+        assertRevert(function () {
+            multi.contract.init['address[],uint256[],string,string,uint8']([abc.address, xyz.address], [0, 1], 'Multi', '0ABC_1XYZ', 18, { from: _, gas: 8000000 });
+        });
     });
 
     describe('ERC228', async function () {
         it('should have correct tokensCount implementation', async function () {
-            const multi2 = await MultiToken.new([abc.address, xyz.address], [1, 1], 'Multi', '1ABC_1XYZ', 18);
+            const multi2 = await MultiToken.new();
+            await multi2.contract.init['address[],uint256[],string,string,uint8']([abc.address, xyz.address], [1, 1], 'Multi', '1ABC_1XYZ', 18, { from: _, gas: 8000000 });
             (await multi2.tokensCount.call()).should.be.bignumber.equal(2);
 
-            const multi3 = await MultiToken.new([abc.address, xyz.address, lmn.address], [1, 1, 1], 'Multi', '1ABC_1XYZ', 18);
+            const multi3 = await MultiToken.new();
+            await multi3.contract.init['address[],uint256[],string,string,uint8']([abc.address, xyz.address, lmn.address], [1, 1, 1], 'Multi', '1ABC_1XYZ', 18, { from: _, gas: 8000000 });
             (await multi3.tokensCount.call()).should.be.bignumber.equal(3);
         });
 
         it('should have correct tokens implementation', async function () {
-            const multi2 = await MultiToken.new([abc.address, xyz.address], [1, 1], 'Multi', '1ABC_1XYZ', 18);
+            const multi2 = await MultiToken.new();
+            await multi2.contract.init['address[],uint256[],string,string,uint8']([abc.address, xyz.address], [1, 1], 'Multi', '1ABC_1XYZ', 18, { from: _, gas: 8000000 });
             (await multi2.tokens.call(0)).should.be.equal(abc.address);
             (await multi2.tokens.call(1)).should.be.equal(xyz.address);
 
-            const multi3 = await MultiToken.new([abc.address, xyz.address, lmn.address], [1, 1, 1], 'Multi', '1ABC_1XYZ', 18);
+            const multi3 = await MultiToken.new();
+            await multi3.contract.init['address[],uint256[],string,string,uint8']([abc.address, xyz.address, lmn.address], [1, 1, 1], 'Multi', '1ABC_1XYZ', 18, { from: _, gas: 8000000 });
             (await multi3.tokens.call(0)).should.be.equal(abc.address);
             (await multi3.tokens.call(1)).should.be.equal(xyz.address);
             (await multi3.tokens.call(2)).should.be.equal(lmn.address);
         });
 
         it('should have correct getReturn implementation', async function () {
-            const multi = await MultiToken.new([abc.address, xyz.address], [1, 1], 'Multi', '1ABC_1XYZ', 18);
+            await multi.contract.init['address[],uint256[],string,string,uint8']([abc.address, xyz.address], [1, 1], 'Multi', '1ABC_1XYZ', 18, { from: _, gas: 8000000 });
             (await multi.getReturn.call(abc.address, xyz.address, 100)).should.be.bignumber.equal(0);
 
             await abc.approve(multi.address, 1000e6);
@@ -76,7 +88,7 @@ contract('MultiToken', function ([_, wallet1, wallet2, wallet3, wallet4, wallet5
         });
 
         it('should have correct change implementation for missing and same tokens', async function () {
-            const multi = await MultiToken.new([abc.address, xyz.address], [1, 1], 'Multi', '1ABC_1XYZ', 18);
+            await multi.contract.init['address[],uint256[],string,string,uint8']([abc.address, xyz.address], [1, 1], 'Multi', '1ABC_1XYZ', 18, { from: _, gas: 8000000 });
 
             await abc.approve(multi.address, 1000e6);
             await xyz.approve(multi.address, 500e6);
@@ -93,7 +105,7 @@ contract('MultiToken', function ([_, wallet1, wallet2, wallet3, wallet4, wallet5
 
     describe('exchange 1:1', async function () {
         beforeEach(async function () {
-            multi = await MultiToken.new([abc.address, xyz.address], [1, 1], 'Multi', '1ABC_1XYZ', 18);
+            await multi.contract.init['address[],uint256[],string,string,uint8']([abc.address, xyz.address], [1, 1], 'Multi', '1ABC_1XYZ', 18, { from: _, gas: 8000000 });
             await abc.approve(multi.address, 1000e6);
             await xyz.approve(multi.address, 500e6);
             await multi.bundleFirstTokens(_, 1000, [1000e6, 500e6]);
@@ -160,7 +172,7 @@ contract('MultiToken', function ([_, wallet1, wallet2, wallet3, wallet4, wallet5
 
     describe('exchange 2:1', async function () {
         beforeEach(async function () {
-            multi = await MultiToken.new([abc.address, xyz.address], [2, 1], 'Multi', '2ABC_1XYZ', 18);
+            await multi.contract.init['address[],uint256[],string,string,uint8']([abc.address, xyz.address], [2, 1], 'Multi', '2ABC_1XYZ', 18, { from: _, gas: 8000000 });
             await abc.approve(multi.address, 1000e6);
             await xyz.approve(multi.address, 500e6);
             await multi.bundleFirstTokens(_, 1000, [1000e6, 500e6]);

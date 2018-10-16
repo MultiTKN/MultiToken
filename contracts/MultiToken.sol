@@ -27,9 +27,8 @@ contract MultiToken is IMultiToken, BasicMultiToken {
         return _changesEnabled;
     }
 
-    constructor(ERC20[] tokens, uint256[] tokenWeights, string name, string symbol, uint8 decimals) 
-        public BasicMultiToken(tokens, name, symbol, decimals)
-    {
+    function init(ERC20[] tokens, uint256[] tokenWeights, string theName, string theSymbol, uint8 theDecimals) public {
+        super.init(tokens, theName, theSymbol, theDecimals);
         require(tokenWeights.length == tokens.length, "Lenghts of tokens and tokenWeights array should be equal");
 
         uint256 minimalWeight = 0;

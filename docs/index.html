@@ -73,17 +73,21 @@
 					</div>
 					<div class="form-group">
                         <div class="form-row">
-                            <div class="form-group col-md-4">
-                                <label for="multitokenName">MultiToken name:</label>
+                            <div class="form-group col-md-3">
+                                <label for="multitokenName">Name:</label>
                                 <input type="text" class="form-control" id="multitokenName" disabled>
                             </div>
-                            <div class="form-group col-md-4">
-                                <label for="multitokenSymbol">MultiToken symbol:</label>
+                            <div class="form-group col-md-3">
+                                <label for="multitokenSymbol">Symbol:</label>
                                 <input type="text" class="form-control" id="multitokenSymbol" disabled>
                             </div>
-                            <div class="form-group col-md-4">
-                                <label for="multitokenDecimals">MultiToken decimals:</label>
+                            <div class="form-group col-md-3">
+                                <label for="multitokenDecimals">Decimals:</label>
                                 <input type="text" class="form-control" id="multitokenDecimals" disabled>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="multitokenTotalSupply">Total Supply:</label>
+                                <input type="text" class="form-control" id="multitokenTotalSupply" disabled>
                             </div>
                         </div>
 
@@ -104,7 +108,18 @@
 						</table>
 						<!-- <button type="button" class="btn btn-success" id="bundle">Bundle</button><br/> -->
 						<!-- <button type="button" class="btn btn-warning" id="unbundle">Unbundle</button><br/> -->
-						
+                        
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="buy-multitoken-price-mul">Price MUL:</label>
+                                <input type="text" class="form-control" id="buy-multitoken-price-mul" value="1" placeholder="">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="buy-multitoken-price-div">Price DIV:</label>
+                                <input type="text" class="form-control" id="buy-multitoken-price-div" value="1000" placeholder="">
+                            </div>
+                        </div>
+
 						<div class="input-group mb-3">
 							<div class="input-group-prepend">
 								<span class="input-group-text" id="basic-addon1">ETH</span>
@@ -147,16 +162,6 @@
                         <div class="form-group col-md-6">
                             <label for="new-multitoken-symbol">MultiToken symbol:</label>
                             <input type="text" class="form-control" id="new-multitoken-symbol" value="" placeholder="">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label for="new-multitoken-price-mul">Price MUL:</label>
-                            <input type="text" class="form-control" id="new-multitoken-price-mul" value="1" placeholder="">
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label for="new-multitoken-price-div">Price DIV:</label>
-                            <input type="text" class="form-control" id="new-multitoken-price-div" value="1000" placeholder="">
                         </div>
                     </div>
                     <div class="form-row">

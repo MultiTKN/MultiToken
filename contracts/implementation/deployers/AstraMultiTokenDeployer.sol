@@ -13,7 +13,8 @@ contract AstraMultiTokenDeployer is AbstractDeployer {
         external returns(address)
     {
         require(msg.sender == address(this), "Should be called only from deployer itself");
-        AstraMultiToken mtkn = new AstraMultiToken(tokens, weights, name, symbol, 18);
+        AstraMultiToken mtkn = new AstraMultiToken();
+        mtkn.init(tokens, weights, name, symbol, 18);
         mtkn.transferOwnership(msg.sender);
         return mtkn;
     }

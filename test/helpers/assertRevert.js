@@ -1,9 +1,9 @@
 const should = require('chai')
     .should();
 
-async function assertRevert (promise) {
+async function assertRevert (foo) {
     try {
-        await promise;
+        foo();
     } catch (error) {
         error.message.should.include('revert', `Expected "revert", got ${error} instead`);
         return;

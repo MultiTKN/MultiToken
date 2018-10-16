@@ -1,6 +1,3 @@
-
-/* @flow */
-
 require('chai')
     .use(require('chai-as-promised'))
     .use(require('chai-bignumber')(web3.BigNumber))
@@ -37,13 +34,15 @@ contract('MultiTokenInfo', function ([_, wallet1, wallet2, wallet3, wallet4, wal
     });
 
     it('should provide working method allTokens', async function () {
-        const multi = await BasicMultiToken.new([abc.address, xyz.address], 'Multi', '1ABC_1XYZ', 18);
+        const multi = await BasicMultiToken.new();
+        await multi.init([abc.address, xyz.address], 'Multi', '1ABC_1XYZ', 18);
         (await info.allTokens.call(multi.address)).should.be.deep.equal([
             abc.address,
             xyz.address,
         ]);
 
-        const multi2 = await BasicMultiToken.new([abc.address, xyz.address, lmn.address], 'Multi', '1ABC_1XYZ_1LMN', 18);
+        const multi2 = await BasicMultiToken.new();
+        await multi2.init([abc.address, xyz.address, lmn.address], 'Multi', '1ABC_1XYZ_1LMN', 18);
         (await info.allTokens.call(multi2.address)).should.be.deep.equal([
             abc.address,
             xyz.address,
@@ -52,13 +51,15 @@ contract('MultiTokenInfo', function ([_, wallet1, wallet2, wallet3, wallet4, wal
     });
 
     it('should provide working method allNames', async function () {
-        const multi = await BasicMultiToken.new([abc.address, xyz.address], 'Multi', '1ABC_1XYZ', 18);
+        const multi = await BasicMultiToken.new();
+        await multi.init([abc.address, xyz.address], 'Multi', '1ABC_1XYZ', 18);
         (await info.allNames.call(multi.address)).map(web3.toUtf8).should.be.deep.equal([
             'Token',
             'BadToken',
         ]);
 
-        const multi2 = await BasicMultiToken.new([abc.address, xyz.address, lmn.address], 'Multi', '1ABC_1XYZ_1LMN', 18);
+        const multi2 = await BasicMultiToken.new();
+        await multi2.init([abc.address, xyz.address, lmn.address], 'Multi', '1ABC_1XYZ_1LMN', 18);
         (await info.allNames.call(multi2.address)).map(web3.toUtf8).should.be.deep.equal([
             'Token',
             'BadToken',
@@ -67,13 +68,15 @@ contract('MultiTokenInfo', function ([_, wallet1, wallet2, wallet3, wallet4, wal
     });
 
     it('should provide working method allSymbols', async function () {
-        const multi = await BasicMultiToken.new([abc.address, xyz.address], 'Multi', '1ABC_1XYZ', 18);
+        const multi = await BasicMultiToken.new();
+        await multi.init([abc.address, xyz.address], 'Multi', '1ABC_1XYZ', 18);
         (await info.allSymbols.call(multi.address)).map(web3.toUtf8).should.be.deep.equal([
             'ABC',
             'XYZ',
         ]);
 
-        const multi2 = await BasicMultiToken.new([abc.address, xyz.address, lmn.address], 'Multi', '1ABC_1XYZ_1LMN', 18);
+        const multi2 = await BasicMultiToken.new();
+        await multi2.init([abc.address, xyz.address, lmn.address], 'Multi', '1ABC_1XYZ_1LMN', 18);
         (await info.allSymbols.call(multi2.address)).map(web3.toUtf8).should.be.deep.equal([
             'ABC',
             'XYZ',
@@ -82,7 +85,8 @@ contract('MultiTokenInfo', function ([_, wallet1, wallet2, wallet3, wallet4, wal
     });
 
     it('should provide working method allBalances', async function () {
-        const multi = await BasicMultiToken.new([abc.address, xyz.address], 'Multi', '1ABC_1XYZ', 18);
+        const multi = await BasicMultiToken.new();
+        await multi.init([abc.address, xyz.address], 'Multi', '1ABC_1XYZ', 18);
         await abc.approve(multi.address, 1000e6);
         await xyz.approve(multi.address, 500e6);
         await multi.bundleFirstTokens(_, 1000, [1000e6, 500e6]);
