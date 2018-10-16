@@ -69,9 +69,8 @@ contract FundMultiToken is IFundMultiToken, LockableMultiTokenMixin {
 
     event WeightsChanged(uint256 startingBlockNumber, uint256 endingBlockNumber, uint256 nextWeightBlockDelay);
 
-    constructor(ERC20[] tokens, uint256[] tokenWeights, string name, string symbol, uint8 decimals) 
-        public MultiToken(tokens, tokenWeights, name, symbol, decimals)
-    {
+    function init(ERC20[] tokens, uint256[] tokenWeights, string theName, string theSymbol, uint8 theDecimals) public {
+        super.init(tokens, tokenWeights, theName, theSymbol, theDecimals);
         _registerInterface(InterfaceId_IFundMultiToken);
     }
 

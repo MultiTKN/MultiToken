@@ -2,6 +2,7 @@
 /* @flow */
 
 const EVMRevert = require('./helpers/EVMRevert');
+const { assertRevert } = require('./helpers/assertRevert');
 
 require('chai')
     .use(require('chai-as-promised'))
@@ -29,13 +30,24 @@ contract('MultiToken', function ([_, wallet1, wallet2, wallet3, wallet4, wallet5
 
         lmn = await Token.new('LMN');
         await lmn.mint(_, 100e6);
+
+        multi = await MultiToken.new();
+        //multi.contract.init2 = multi.contract.init["address[],uint256[],string,string,uint8"];
     });
 
-    it('should failure on wrong constructor arguments', async function () {
-        await MultiToken.new([abc.address, xyz.address], [1, 1, 1], 'Multi', '1ABC_1XYZ', 18).should.be.rejectedWith(EVMRevert);
-        await MultiToken.new([abc.address, xyz.address], [1], 'Multi', '1ABC_1XYZ', 18).should.be.rejectedWith(EVMRevert);
-        await MultiToken.new([abc.address, xyz.address], [1, 0], 'Multi', '1ABC_0XYZ', 18).should.be.rejectedWith(EVMRevert);
-        await MultiToken.new([abc.address, xyz.address], [0, 1], 'Multi', '0ABC_1XYZ', 18).should.be.rejectedWith(EVMRevert);
+    it.only('should failure on wrong constructor arguments', async function () {
+        assertRevert(function() {
+            multi.contract.init["address[],uint256[],string,string,uint8"]([abc.address, xyz.address], [1, 1, 1], 'Multi', '1ABC_1XYZ', 18, { from: _ })
+        });
+        assertRevert(function() {
+            multi.contract.init["address[],uint256[],string,string,uint8"]([abc.address, xyz.address], [1], 'Multi', '1ABC_1XYZ', 18, { from: _ })
+        });
+        assertRevert(function() {
+            multi.contract.init["address[],uint256[],string,string,uint8"]([abc.address, xyz.address], [1, 0], 'Multi', '1ABC_0XYZ', 18, { from: _ })
+        });
+        assertRevert(function() {
+            multi.contract.init["address[],uint256[],string,string,uint8"]([abc.address, xyz.address], [0, 1], 'Multi', '0ABC_1XYZ', 18, { from: _ })
+        });
     });
 
     describe('ERC228', async function () {

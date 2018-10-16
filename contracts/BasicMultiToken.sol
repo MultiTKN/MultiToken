@@ -31,14 +31,21 @@ contract BasicMultiToken is Ownable, StandardToken, DetailedERC20, ERC1003Token,
         _;
     }
 
-    constructor(ERC20[] tokens, string name, string symbol, uint8 decimals)
-        public DetailedERC20(name, symbol, decimals)
+    constructor()
+        public DetailedERC20("", "", 0)
     {
-        require(decimals > 0, "constructor: _decimals should not be zero");
-        require(bytes(name).length > 0, "constructor: name should not be empty");
-        require(bytes(symbol).length > 0, "constructor: symbol should not be empty");
+    }
+
+    function init(ERC20[] tokens, string theName, string theSymbol, uint8 theDecimals) public {
+        require(decimals == 0, "constructor: decimals should be zero");
+        require(theDecimals > 0, "constructor: _decimals should not be zero");
+        require(bytes(theName).length > 0, "constructor: name should not be empty");
+        require(bytes(theSymbol).length > 0, "constructor: symbol should not be empty");
         require(tokens.length >= 2, "Contract does not support less than 2 inner tokens");
 
+        name = theName;
+        symbol = theSymbol;
+        decimals = theDecimals;
         _tokens = tokens;
 
         _registerInterface(InterfaceId_IBasicMultiToken);
