@@ -9,13 +9,7 @@ contract AstraBasicMultiTokenDeployer is AbstractDeployer {
         return "AstraBasicMultiTokenDeployer";
     }
 
-    function create(ERC20[] tokens, string name, string symbol)
-        external returns(address)
-    {
-        require(msg.sender == address(this), "Should be called only from deployer itself");
-        AstraBasicMultiToken mtkn = new AstraBasicMultiToken();
-        mtkn.init(tokens, name, symbol, 18);
-        mtkn.transferOwnership(msg.sender);
-        return mtkn;
+    function createMultiToken() internal returns(address) {
+        return new AstraBasicMultiToken();
     }
 }
