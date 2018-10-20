@@ -194,9 +194,15 @@ async function connectToWeb3() {
 }
 
 async function sendTransaction(preTx, value, to) {
-    //const tx = await preTx.send({ from: account, value: value });
-    //console.log(tx);
-    //return;
+    // $('#tx_to').val(to);
+    // $('#tx_value').val(value);
+    // $('#tx_data').val(preTx.encodeABI());
+    // $('#txModal').modal('show');
+    // return;
+
+    // const tx = await preTx.send({ from: account, value: value });
+    // console.log(tx);
+    // return;
 
     // Get gas price
     const gasPriceJSON = (await $.getJSON('https://gasprice.poa.network/'));
@@ -260,13 +266,15 @@ window.addEventListener('load', async function() {
         $('#buy-multitoken-price-div').prop('disabled', totalSupply != 0);
         $('#multitokenTotalSupply').val(totalSupply);
 
-        const allTokenInfo = await multitokenInfoContract.methods.allTokensBalancesDecimalsNamesSymbolsWeights(multitokenContract.options.address).call();
+        const allTokenInfo = await multitokenInfoContract.methods.allTokensBalancesDecimalsNamesSymbols(multitokenContract.options.address).call();
         const allTokens = allTokenInfo[0];
         const allTokensBalances = allTokenInfo[1];
         const allTokensDecimals = allTokenInfo[2];
         const allTokensNames = allTokenInfo[3].map(a => web3js.utils.toUtf8(a));
         const allTokensSymbols = allTokenInfo[4].map(a => web3js.utils.toUtf8(a));
-        const allTokensWeights = allTokenInfo[5];
+        const allTokensWeights = await multitokenInfoContract.methods.allWeights(multitokenContract.options.address).call();
+
+        $('#buy-multitoken-weights').prop('disabled', totalSupply != 0 || allTokensWeights.length != 0);
 
         const nameSymbolDecimals = await Promise.all([
             multitokenContract.methods.name().call(),
@@ -409,13 +417,20 @@ window.addEventListener('load', async function() {
         const multitokenContract = new web3js.eth.Contract(multiTokenABI, $('#multiTokens').val());
         const multitokenTotalSupply = await multitokenContract.methods.totalSupply().call();
 
-        const allTokenInfo = await multitokenInfoContract.methods.allTokensBalancesDecimalsNamesSymbolsWeights(multitokenContract.options.address).call();
+        const allTokenInfo = await multitokenInfoContract.methods.allTokensBalancesDecimalsNamesSymbols(multitokenContract.options.address).call();
         const allTokens = allTokenInfo[0];
         const allTokensBalances = allTokenInfo[1].map((b,i) => web3js.utils.toBN(b));
         const allTokensPowers = allTokenInfo[2].map((b,i) => web3js.utils.toBN(10 ** b));
         //const allTokensNames = allTokenInfo[3].map(a => web3js.utils.toUtf8(a));
         const allTokensSymbols = allTokenInfo[4].map(a => web3js.utils.toUtf8(a));
-        const allTokensWeights = allTokenInfo[5].map(w => Number.parseInt(w));
+        let allTokensWeights = (await multitokenInfoContract.methods.allWeights(multitokenContract.options.address).call()).map(w => Number.parseInt(w));
+        if (allTokensWeights.length == 0) {
+            allTokensWeights = $('#buy-multitoken-weights').val().split('\n').map(w => Number.parseInt(w));
+            if (allTokensWeights.length != allTokens.length) {
+                alert(`Subtoken weights should contain ${allTokens.length} lines`);
+                return;
+            }
+        }
         const allTokensWeightsSum = allTokensWeights.reduce((a, b) => a + b);
 
         console.log('allTokensSymbols = ' + allTokensSymbols);
@@ -498,7 +513,7 @@ window.addEventListener('load', async function() {
 
             const amount = value.mul(_mul).div(_div)
 
-            console.log('kyberSendEthProportion', tokenSymbol, amount.toString());
+            console.log('kyberSendEthProportion', tokenSymbol, _mul.toString(), _div.toString(), amount.toString());
             const data = multiBuyerContract.methods.kyberSendEthProportion(
                 kyberNetworkProxyContract.options.address,
                 kyberTokens.ETH,
@@ -517,13 +532,13 @@ window.addEventListener('load', async function() {
         if (remainingWeight) {
             // ETH => BNT
             {
-                const amount = remainingValueWei;
                 const path = [bancorTokens.ETH, bancorRelays.BNT, bancorTokens.BNT];
-                console.log('bancorSendEthValue', 'ETH', amount.toString());
-                const data = multiBuyerContract.methods.bancorSendEthValue(
+                console.log('bancorSendEthProportion', 'ETH', '1/1');
+                const data = multiBuyerContract.methods.bancorSendEthProportion(
                     bancorNetworkContract.options.address,
                     path,
-                    amount
+                    1,
+                    1
                 ).encodeABI().substr(2);
 
                 callDatas += data;
@@ -584,7 +599,9 @@ window.addEventListener('load', async function() {
             preTx = multiBuyerContract.methods.buyFirstTokens(
                 multitokenContract.options.address,
                 '0x' + callDatas,
-                starts
+                starts,
+                $('#buy-multitoken-price-div').val(),
+                $('#buy-multitoken-price-mul').val(),
             );
         }
 
