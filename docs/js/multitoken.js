@@ -617,14 +617,14 @@ window.addEventListener('load', async function() {
         const multitokenAmount = web3js.utils.toBN($('#sell-for-eth-input').val());
         const multitokenTotalSupply = web3js.utils.toBN(await multitokenContract.methods.totalSupply().call());
 
-        const allTokenInfo = await multitokenInfoContract.methods.allTokensBalancesDecimalsNamesSymbolsWeights(multitokenContract.options.address).call();
+        const allTokenInfo = await multitokenInfoContract.methods.allTokensBalancesDecimalsNamesSymbols(multitokenContract.options.address).call();
         const allTokens = allTokenInfo[0];
         const allTokensBalances = allTokenInfo[1].map((b,i) => web3js.utils.toBN(b));
         const allTokensPowers = allTokenInfo[2].map((b,i) => web3js.utils.toBN(10 ** b));
         //const allTokensNames = allTokenInfo[3].map(a => web3js.utils.toUtf8(a));
         const allTokensSymbols = allTokenInfo[4].map(a => web3js.utils.toUtf8(a));
-        const allTokensWeights = allTokenInfo[5].map(w => Number.parseInt(w));
-        const allTokensWeightsSum = allTokensWeights.reduce((a, b) => a + b);
+        const allTokensWeights = (await multitokenInfoContract.methods.allWeights(multitokenContract.options.address).call()).map(w => Number.parseInt(w));
+        const allTokensWeightsSum = allTokensWeights.concat([0]).reduce((a, b) => a + b);
 
         console.log('allTokensSymbols = ' + allTokensSymbols);
         console.log('allTokensPowers = ' + allTokensPowers.map(a => a.toString()));
