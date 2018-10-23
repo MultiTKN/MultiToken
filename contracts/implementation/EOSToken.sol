@@ -6,6 +6,11 @@ import "openzeppelin-solidity/contracts/ECRecovery.sol";
 
 
 contract EOSToken is MintableToken, BurnableToken {
+    modifier isUpToDate(uint256 blockNumber) {
+        require(block.number <= blockNumber, "Signature is outdated");
+        _;
+    }
+
     function depositEther() public payable onlyOwner {
     }
 
@@ -17,8 +22,8 @@ contract EOSToken is MintableToken, BurnableToken {
         return super.mint(this, amount);
     }
 
-    function burn(uint256 amount) public onlyOwner returns(bool) {
-        return _burn(this, amount);
+    function burn(uint256 amount) public onlyOwner {
+        _burn(this, amount);
     }
 
     function buy(
@@ -31,9 +36,9 @@ contract EOSToken is MintableToken, BurnableToken {
     ) 
         public
         payable
+        isUpToDate(blockNumber)
         returns(uint256 amount)
     {
-        require(block.number <= blockNumber, "Signature was outdated");
         bytes memory data = abi.encodePacked(this.buy.selector, msg.value, priceMul, priceDiv, blockNumber);
         require(checkOwnerSignature(data, r, s, v), "Signature is invalid");
         amount = msg.value.mul(priceMul).div(priceDiv);
@@ -50,9 +55,9 @@ contract EOSToken is MintableToken, BurnableToken {
         uint8 v
     ) 
         public
+        isUpToDate(blockNumber)
         returns(uint256 value)
     {
-        require(block.number <= blockNumber, "Signature was outdated");
         bytes memory data = abi.encodePacked(this.sell.selector, amount, priceMul, priceDiv, blockNumber);
         require(checkOwnerSignature(data, r, s, v), "Signature is invalid");
         require(this.transferFrom(msg.sender, this, amount), "There are not enough tokens available for selling");
