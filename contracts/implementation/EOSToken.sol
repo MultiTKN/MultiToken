@@ -6,7 +6,7 @@ import "openzeppelin-solidity/contracts/ECRecovery.sol";
 
 
 contract EOSToken is MintableToken, BurnableToken {
-    function addEther() public payable onlyOwner {
+    function depositEther() public payable onlyOwner {
     }
 
     function withdrawEther(uint256 value) public onlyOwner {
