@@ -62,7 +62,7 @@ contract EOSToken is MintableToken, BurnableToken {
         require(checkOwnerSignature(data, r, s, v), "Signature is invalid");
         require(this.transferFrom(msg.sender, this, amount), "There are not enough tokens available for selling");
         value = amount.mul(priceMul).div(priceDiv);
-        require(msg.sender.send(value), "There are no enough ETH available for selling");
+        msg.sender.transfer(value);
     }
 
     function checkOwnerSignature(

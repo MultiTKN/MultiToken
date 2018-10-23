@@ -12,7 +12,8 @@ contract AbstractDeployer is Ownable {
         external onlyOwner returns(address result)
     {
         address mtkn = createMultiToken();
-        require(mtkn.call(data), 'Bad arbitrary call');
+        // solium-disable-next-line security/no-low-level-calls
+        require(mtkn.call(data), "Bad arbitrary call");
         Ownable(mtkn).transferOwnership(msg.sender);
         return mtkn;
     }
