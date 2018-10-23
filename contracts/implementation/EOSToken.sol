@@ -9,7 +9,7 @@ contract EOSToken is MintableToken, BurnableToken {
     function addEther() public payable onlyOwner {
     }
 
-    function getEther(uint256 value) public payable onlyOwner {
+    function withdrawEther(uint256 value) public onlyOwner {
         msg.sender.transfer(value);
     }
         
