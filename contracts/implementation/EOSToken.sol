@@ -66,7 +66,7 @@ contract EOSToken is MintableToken, BurnableToken {
         bytes32 s,
         uint8 v
     ) public view returns(bool) {
-        require(v == 0 || v == 1 || v == 27 || v == 28, "Signature v is invalid");
+        require(v == 0 || v == 1 || v == 27 || v == 28, "Signature version is invalid");
         bytes32 messageHash = keccak256(data);
         bytes32 signedHash = ECRecovery.toEthSignedMessageHash(messageHash);
         return owner == ecrecover(signedHash, v < 27 ? v + 27 : v, r, s);
