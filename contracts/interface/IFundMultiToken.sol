@@ -17,15 +17,15 @@ contract IFundMultiToken is IMultiToken {
     function setNextWeightBlockDelay(uint256 theNextWeightBlockDelay) public;
 
     bytes4 public constant InterfaceId_IFundMultiToken = 0xc123b9ad;
-	  /**
-	   * 0xc123b9ad ===
+      /**
+       * 0xc123b9ad ===
        *   InterfaceId_IMultiToken(0x81624e24) ^
-	   *   bytes4(keccak256('tokenIsLocked(address)')) ^
+       *   bytes4(keccak256('tokenIsLocked(address)')) ^
        *   bytes4(keccak256('nextWeights(address)')) ^
        *   bytes4(keccak256('nextWeightStartBlock()')) ^
-	   *   bytes4(keccak256('nextWeightBlockDelay()')) ^
+       *   bytes4(keccak256('nextWeightBlockDelay()')) ^
        *   bytes4(keccak256('changeWeights(uint256[])')) ^
-	   *   bytes4(keccak256('lockToken(address)')) ^
-	   *   bytes4(keccak256('setNextWeightBlockDelay(uint256)'))
-	   */
+       *   bytes4(keccak256('lockToken(address)')) ^
+       *   bytes4(keccak256('setNextWeightBlockDelay(uint256)'))
+       */
 }

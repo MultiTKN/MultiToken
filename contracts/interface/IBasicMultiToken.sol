@@ -22,10 +22,10 @@ contract IBasicMultiToken is ERC20 {
     function enableBundling() public;
 
     bytes4 public constant InterfaceId_IBasicMultiToken = 0xd5c368b6;
-	  /**
-	   * 0xd5c368b6 ===
-	   *   bytes4(keccak256('tokensCount()')) ^
-	   *   bytes4(keccak256('tokens(uint256)')) ^
+      /**
+       * 0xd5c368b6 ===
+       *   bytes4(keccak256('tokensCount()')) ^
+       *   bytes4(keccak256('tokens(uint256)')) ^
        *   bytes4(keccak256('bundlingEnabled()')) ^
        *   bytes4(keccak256('bundleFirstTokens(address,uint256,uint256[])')) ^
        *   bytes4(keccak256('bundle(address,uint256)')) ^
@@ -33,5 +33,5 @@ contract IBasicMultiToken is ERC20 {
        *   bytes4(keccak256('unbundleSome(address,uint256,address[])')) ^
        *   bytes4(keccak256('disableBundling()')) ^
        *   bytes4(keccak256('enableBundling()'))
-	   */
+       */
 }

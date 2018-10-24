@@ -17,13 +17,13 @@ contract IMultiToken is IBasicMultiToken {
     function disableChanges() public;
 
     bytes4 public constant InterfaceId_IMultiToken = 0x81624e24;
-	  /**
-	   * 0x81624e24 ===
+      /**
+       * 0x81624e24 ===
        *   InterfaceId_IBasicMultiToken(0xd5c368b6) ^
-	   *   bytes4(keccak256('weights(address)')) ^
+       *   bytes4(keccak256('weights(address)')) ^
        *   bytes4(keccak256('changesEnabled()')) ^
        *   bytes4(keccak256('getReturn(address,address,uint256)')) ^
-	   *   bytes4(keccak256('change(address,address,uint256,uint256)')) ^
+       *   bytes4(keccak256('change(address,address,uint256,uint256)')) ^
        *   bytes4(keccak256('disableChanges()'))
-	   */
+       */
 }

@@ -37,9 +37,9 @@ contract IMultiTokenInfo {
         );
 
     bytes4 public constant InterfaceId_IMultiTokenInfo = 0x6d429c45;
-	  /**
-	   * 0x6d429c45 ===
-	   *   bytes4(keccak256('allTokens(address)')) ^
+      /**
+       * 0x6d429c45 ===
+       *   bytes4(keccak256('allTokens(address)')) ^
        *   bytes4(keccak256('allBalances(address)')) ^
        *   bytes4(keccak256('allDecimals(address)')) ^
        *   bytes4(keccak256('allNames(address)')) ^
@@ -47,5 +47,5 @@ contract IMultiTokenInfo {
        *   bytes4(keccak256('allTokensBalancesDecimalsNamesSymbols(address)')) ^
        *   bytes4(keccak256('allWeights(address)')) ^
        *   bytes4(keccak256('allTokensBalancesDecimalsNamesSymbolsWeights(address)'))
-	   */
+       */
 }
