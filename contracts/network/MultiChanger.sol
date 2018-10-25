@@ -113,8 +113,8 @@ contract MultiChanger is CanReclaimToken {
     }
 
     function transferTokenAmount(address target, bytes data, ERC20 fromToken, uint256 amount) external {
-        fromToken.asmTransfer(target, amount);
-        if (target != address(0)) {
+        require(fromToken.asmTransfer(target, amount));
+        if (data.length != 0) {
             // solium-disable-next-line security/no-low-level-calls
             require(target.call(data));
         }
@@ -122,11 +122,17 @@ contract MultiChanger is CanReclaimToken {
 
     function transferTokenProportion(address target, bytes data, ERC20 fromToken, uint256 mul, uint256 div) external {
         uint256 amount = fromToken.balanceOf(this).mul(mul).div(div);
-        fromToken.asmTransfer(target, amount);
-        if (target != address(0)) {
+        require(fromToken.asmTransfer(target, amount));
+        if (data.length != 0) {
             // solium-disable-next-line security/no-low-level-calls
             require(target.call(data));
         }
+    }
+
+    function transferTokenProportionToOrigin(ERC20 token, uint256 mul, uint256 div) external {
+        uint256 amount = token.balanceOf(this).mul(mul).div(div);
+        // solium-disable-next-line security/no-tx-origin
+        require(token.asmTransfer(tx.origin, amount));
     }
 
     // Multitoken
