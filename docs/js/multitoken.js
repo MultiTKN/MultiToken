@@ -239,7 +239,7 @@ window.addEventListener('load', async function() {
         console.log('Deployers: ', allDeployers);
         $('#multiTokenDeployers').html(allDeployers.map(
             (d,i) => `<option${i?'':' selected'}>${d}</option>`
-        ).join() + '<option>New</option>');
+        ).join());
 
         const allMultitokens = await networkContract.methods.allMultitokens().call();
         console.log('Multitokens: ', allMultitokens);
@@ -254,6 +254,8 @@ window.addEventListener('load', async function() {
     $('#multiTokenDeployers').bind('change', async function() {
         const abstractDeployer = new web3js.eth.Contract(abstractDeployerABI, $('#multiTokenDeployers').val());
         const title = await abstractDeployer.methods.title().call();
+
+        $('#deployerName').val(title);
         $('textarea[id="new-multitoken-weights"]').prop('disabled', title == 'AstraBasicMultiTokenDeployer');
     });
 

@@ -3,10 +3,10 @@ pragma solidity ^0.4.24;
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "../interface/IMultiToken.sol";
 import "../ext/CheckedERC20.sol";
-import "./MultiChanger.sol";
+import "./MultiShopper.sol";
 
 
-contract MultiBuyer is MultiChanger {
+contract MultiBuyer is MultiShopper {
     using CheckedERC20 for ERC20;
 
     function buy(

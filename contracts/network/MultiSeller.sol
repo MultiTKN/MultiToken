@@ -4,10 +4,10 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import { IMultiToken } from "../interface/IMultiToken.sol";
 import "../ext/CheckedERC20.sol";
-import "./MultiChanger.sol";
+import "./MultiShopper.sol";
 
 
-contract MultiSeller is MultiChanger {
+contract MultiSeller is MultiShopper {
     using CheckedERC20 for ERC20;
     using CheckedERC20 for IMultiToken;
 
