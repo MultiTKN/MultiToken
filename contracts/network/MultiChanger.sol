@@ -23,6 +23,19 @@ contract MultiChanger {
         }
     }
 
+    // Ether
+
+    function sendEthValue(address target, uint256 value) external {
+        // solium-disable-next-line security/no-call-value
+        require(target.call.value(value)());
+    }
+
+    function sendEthProportion(address target, uint256 mul, uint256 div) external {
+        uint256 value = address(this).balance.mul(mul).div(div);
+        // solium-disable-next-line security/no-call-value
+        require(target.call.value(value)());
+    }
+
     // Ether token
 
     function depositEtherTokenAmount(IEtherToken etherToken, uint256 amount) external {
@@ -41,6 +54,17 @@ contract MultiChanger {
     function withdrawEtherTokenProportion(IEtherToken etherToken, uint256 mul, uint256 div) external {
         uint256 amount = etherToken.balanceOf(this).mul(mul).div(div);
         etherToken.withdraw(amount);
+    }
+
+    // Token
+
+    function transferTokenAmount(address target, ERC20 fromToken, uint256 amount) external {
+        require(fromToken.asmTransfer(target, amount));
+    }
+
+    function transferTokenProportion(address target, ERC20 fromToken, uint256 mul, uint256 div) external {
+        uint256 amount = fromToken.balanceOf(this).mul(mul).div(div);
+        require(fromToken.asmTransfer(target, amount));
     }
 
     // MultiToken
