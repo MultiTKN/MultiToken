@@ -7,8 +7,16 @@ import "openzeppelin-solidity/contracts/ECRecovery.sol";
 
 
 contract RemoteToken is MintableToken, BurnableToken {
+    mapping(bytes32 => bool) private _spentSignature;
+
     modifier isUpToDate(uint256 blockNumber) {
         require(block.number <= blockNumber, "Signature is outdated");
+        _;
+    }
+
+    modifier spendSignature(bytes32 r) {
+        require(!_spentSignature[r], "Signature was used");
+        _spentSignature[r] = true;
         _;
     }
 
@@ -40,6 +48,7 @@ contract RemoteToken is MintableToken, BurnableToken {
     ) 
         public
         payable
+        spendSignature(r)
         isUpToDate(blockNumber)
         returns(uint256 amount)
     {
@@ -59,6 +68,7 @@ contract RemoteToken is MintableToken, BurnableToken {
         uint8 v
     ) 
         public
+        spendSignature(r)
         isUpToDate(blockNumber)
         returns(uint256 value)
     {
