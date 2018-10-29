@@ -17,6 +17,10 @@ contract MultiChanger {
     using CheckedERC20 for ERC20;
     using ExternalCall for address;
 
+    function() public payable {
+        require(tx.origin != msg.sender);
+    }
+
     function change(bytes callDatas, uint[] starts) public payable { // starts should include 0 and callDatas.length
         for (uint i = 0; i < starts.length - 1; i++) {
             require(address(this).externalCall(0, callDatas, starts[i], starts[i + 1] - starts[i]));
@@ -65,6 +69,15 @@ contract MultiChanger {
     function transferTokenProportion(address target, ERC20 fromToken, uint256 mul, uint256 div) external {
         uint256 amount = fromToken.balanceOf(this).mul(mul).div(div);
         require(fromToken.asmTransfer(target, amount));
+    }
+
+    function transferFromTokenAmount(ERC20 fromToken, uint256 amount) external {
+        require(fromToken.asmTransferFrom(tx.origin, this, amount));
+    }
+
+    function transferFromTokenProportion(ERC20 fromToken, uint256 mul, uint256 div) external {
+        uint256 amount = fromToken.balanceOf(this).mul(mul).div(div);
+        require(fromToken.asmTransferFrom(tx.origin, this, amount));
     }
 
     // MultiToken
