@@ -257,6 +257,8 @@ window.addEventListener('load', async function() {
 
         $('#deployerName').val(title);
         $('textarea[id="new-multitoken-weights"]').prop('disabled', title == 'AstraBasicMultiTokenDeployer');
+        $('textarea[id="new-multitoken-management-fee"]').prop('disabled', title == 'AstraFundMultiTokenDeployer');
+        $('textarea[id="new-multitoken-success-fee"]').prop('disabled', title == 'AstraFundMultiTokenDeployer');
     });
 
     $('#multiTokens').bind('change', async function() {
