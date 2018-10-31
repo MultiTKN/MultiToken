@@ -18,6 +18,7 @@ contract MultiChanger {
     using ExternalCall for address;
 
     function() public payable {
+        // solium-disable-next-line security/no-tx-origin
         require(tx.origin != msg.sender);
     }
 
@@ -72,11 +73,13 @@ contract MultiChanger {
     }
 
     function transferFromTokenAmount(ERC20 fromToken, uint256 amount) external {
+        // solium-disable-next-line security/no-tx-origin
         require(fromToken.asmTransferFrom(tx.origin, this, amount));
     }
 
     function transferFromTokenProportion(ERC20 fromToken, uint256 mul, uint256 div) external {
         uint256 amount = fromToken.balanceOf(this).mul(mul).div(div);
+        // solium-disable-next-line security/no-tx-origin
         require(fromToken.asmTransferFrom(tx.origin, this, amount));
     }
 
