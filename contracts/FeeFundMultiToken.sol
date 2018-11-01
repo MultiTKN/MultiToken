@@ -62,6 +62,7 @@ contract FeeFundMultiToken is FundMultiToken, FeeMultiToken {
     function setManagementFee(uint256 theManagementFee) public onlyManager {
         require(!_managementFeeLocked, "setManagementFee: management fee was locked");
         require(theManagementFee <= 100000, "setManagementFee: fee should be not greater than 10% per year");
+        payManagementFee();
         _managementFee = theManagementFee;
     }
 
