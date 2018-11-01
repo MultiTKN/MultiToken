@@ -32,7 +32,7 @@ contract FeeMultiToken is MultiToken, FeeBasicMultiToken {
     }
 
     function getReturn(address fromToken, address toToken, uint256 amount) public view returns(uint256 returnAmount) {
-        returnAmount = super.getReturn(fromToken, toToken, amount).mul(TOTAL_PERCRENTS.sub(_changeFee)).div(TOTAL_PERCRENTS);
+        returnAmount = super.getReturn(fromToken, toToken, amount).mul(TOTAL_PERCENTS.sub(_changeFee)).div(TOTAL_PERCENTS);
     }
 
     function change(address fromToken, address toToken, uint256 amount, uint256 minReturn) public returns(uint256 returnAmount) {
@@ -42,8 +42,8 @@ contract FeeMultiToken is MultiToken, FeeBasicMultiToken {
     function changeWithRef(address fromToken, address toToken, uint256 amount, uint256 minReturn, address ref) public returns(uint256 returnAmount) {
         returnAmount = super.change(fromToken, toToken, amount, minReturn);
         uint256 refferalAmount = returnAmount
-            .mul(_changeFee).div(TOTAL_PERCRENTS.sub(_changeFee))
-            .mul(_referralFee).div(TOTAL_PERCRENTS);
+            .mul(_changeFee).div(TOTAL_PERCENTS.sub(_changeFee))
+            .mul(_referralFee).div(TOTAL_PERCENTS);
 
         ERC20(toToken).checkedTransfer(ref, refferalAmount);
     }
