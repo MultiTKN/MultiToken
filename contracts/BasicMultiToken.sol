@@ -105,6 +105,20 @@ contract BasicMultiToken is Ownable, StandardToken, DetailedERC20, ERC1003Token,
 
     // Internal methods
 
+    function _mint(address beneficiary, uint256 amount) internal {
+        totalSupply_ = totalSupply_.add(amount);
+        balances[beneficiary] = balances[beneficiary].add(amount);
+        emit Bundle(msg.sender, beneficiary, amount);
+        emit Transfer(0, beneficiary, amount);
+    }
+
+    function _burn(address spender, uint256 amount) internal {
+        balances[spender] = balances[spender].sub(amount);
+        totalSupply_ = totalSupply_.sub(amount);
+        emit Unbundle(msg.sender, spender, amount);
+        emit Transfer(spender, 0, amount);
+    }
+
     function _bundle(address beneficiary, uint256 amount, uint256[] tokenAmounts) internal {
         require(amount != 0, "Bundling amount should be non-zero");
         require(_tokens.length == tokenAmounts.length, "Lenghts of _tokens and tokenAmounts array should be equal");
@@ -114,20 +128,14 @@ contract BasicMultiToken is Ownable, StandardToken, DetailedERC20, ERC1003Token,
             _tokens[i].checkedTransferFrom(msg.sender, this, tokenAmounts[i]);
         }
 
-        totalSupply_ = totalSupply_.add(amount);
-        balances[beneficiary] = balances[beneficiary].add(amount);
-        emit Bundle(msg.sender, beneficiary, amount);
-        emit Transfer(0, beneficiary, amount);
+        _mint(beneficiary, amount);
     }
 
     function _unbundle(address beneficiary, uint256 value, ERC20[] someTokens) internal {
         require(someTokens.length > 0, "Array of someTokens can't be empty");
 
         uint256 totalSupply = totalSupply_;
-        balances[msg.sender] = balances[msg.sender].sub(value);
-        totalSupply_ = totalSupply.sub(value);
-        emit Unbundle(msg.sender, beneficiary, value);
-        emit Transfer(msg.sender, 0, value);
+        _burn(msg.sender, value);
 
         for (uint i = 0; i < someTokens.length; i++) {
             for (uint j = 0; j < i; j++) {
