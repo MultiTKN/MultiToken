@@ -1,3 +1,4 @@
 node_modules/
 truffle.js
 js/
+coverage/

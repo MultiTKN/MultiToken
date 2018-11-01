@@ -24,6 +24,7 @@
     "ethereumjs-util": "^5.2.0",
     "ethereumjs-wallet": "^0.6.2",
     "ethjs-abi": "^0.2.1",
+    "ganache-cli": "^6.1.8",
     "ganache-core": "^2.2.1",
     "node-fetch": "^2.2.0",
     "openzeppelin-solidity": "^1.12.0",
@@ -35,14 +36,14 @@
     "web3-utils": "^1.0.0-beta.36"
   },
   "scripts": {
-    "test": "truffle test",
+    "test": "scripts/test.sh",
+    "coverage": "scripts/coverage.sh",
     "lint:js": "eslint .",
     "lint:js:fix": "eslint . --fix",
     "lint:sol": "solium -d .",
     "lint:sol:fix": "solium -d . --fix",
     "lint": "npm run lint:js && npm run lint:sol",
     "lint:fix": "npm run lint:js:fix && npm run lint:sol:fix",
-    "coverage": "./node_modules/.bin/solidity-coverage",
     "rpc": "scripts/rpc.sh"
   },
   "repository": {
