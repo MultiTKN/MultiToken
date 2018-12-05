@@ -87,7 +87,7 @@ contract MultiChanger {
 
     function multitokenChangeAmount(IMultiToken mtkn, ERC20 fromToken, ERC20 toToken, uint256 minReturn, uint256 amount) external {
         if (fromToken.allowance(this, mtkn) == 0) {
-            fromToken.asmApprove(mtkn, uint256(-1));
+            require(fromToken.asmApprove(mtkn, uint256(-1)), "asmApprove failed");
         }
         mtkn.change(fromToken, toToken, amount, minReturn);
     }

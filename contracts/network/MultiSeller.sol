@@ -2,7 +2,7 @@ pragma solidity ^0.4.24;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
-import { IMultiToken } from "../interface/IMultiToken.sol";
+import "../interface/IMultiToken.sol";
 import "../ext/CheckedERC20.sol";
 import "./MultiShopper.sol";
 
@@ -42,9 +42,16 @@ contract MultiSeller is MultiShopper {
     )
         public
     {
-        mtkn.asmTransferFrom(msg.sender, this, amount);
+        require(mtkn.asmTransferFrom(msg.sender, this, amount), "asmTransferFrom failed");
         mtkn.unbundle(this, amount);
         change(callDatas, starts);
         to.transfer(address(this).balance);
+
+        for (uint i = mtkn.tokensCount(); i > 0; i--) {
+            ERC20 token = mtkn.tokens(i - 1);
+            if (token.balanceOf(this) > 0) {
+                require(token.asmTransfer(to, token.balanceOf(this)), "asmTransfer failed");
+            }
+        }
     }
 }
