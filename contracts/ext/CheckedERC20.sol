@@ -79,7 +79,7 @@ library CheckedERC20 {
     function checkedTransfer(ERC20 token, address to, uint256 value) internal {
         if (value > 0) {
             uint256 balance = token.balanceOf(this);
-            asmTransfer(token, to, value);
+            require(asmTransfer(token, to, value), "asmTransfer failed");
             require(token.balanceOf(this) == balance.sub(value), "checkedTransfer: Final balance didn't match");
         }
     }
@@ -87,7 +87,7 @@ library CheckedERC20 {
     function checkedTransferFrom(ERC20 token, address from, address to, uint256 value) internal {
         if (value > 0) {
             uint256 toBalance = token.balanceOf(to);
-            asmTransferFrom(token, from, to, value);
+            require(asmTransferFrom(token, from, to, value), "asmTransferFrom failed");
             require(token.balanceOf(to) == toBalance.add(value), "checkedTransfer: Final balance didn't match");
         }
     }

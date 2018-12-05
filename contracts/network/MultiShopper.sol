@@ -75,7 +75,7 @@ contract MultiShopper is CanReclaimToken {
 
     function approveTokenAmount(address target, bytes data, ERC20 fromToken, uint256 amount) external {
         if (fromToken.allowance(this, target) != 0) {
-            fromToken.asmApprove(target, 0);
+             fromToken.asmApprove(target, 0);
         }
         fromToken.asmApprove(target, amount);
         // solium-disable-next-line security/no-low-level-calls
@@ -167,13 +167,13 @@ contract MultiShopper is CanReclaimToken {
     }
 
     function bancorTransferTokenAmount(IBancorNetwork bancor, address[] path, uint256 amount) external {
-        ERC20(path[0]).asmTransfer(bancor, amount);
+        require(ERC20(path[0]).asmTransfer(bancor, amount), "asmTransfer failed");
         bancor.convert(path, amount, 1);
     }
 
     function bancorTransferTokenProportion(IBancorNetwork bancor, address[] path, uint256 mul, uint256 div) external {
         uint256 amount = ERC20(path[0]).balanceOf(this).mul(mul).div(div);
-        ERC20(path[0]).asmTransfer(bancor, amount);
+        require(ERC20(path[0]).asmTransfer(bancor, amount), "asmTransfer failed");
         bancor.convert(path, amount, 1);
     }
 

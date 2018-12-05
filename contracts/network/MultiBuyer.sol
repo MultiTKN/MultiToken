@@ -25,7 +25,7 @@ contract MultiBuyer is MultiShopper {
         for (uint i = mtkn.tokensCount(); i > 0; i--) {
             ERC20 token = mtkn.tokens(i - 1);
             if (token.allowance(this, mtkn) == 0) {
-                token.asmApprove(mtkn, uint256(-1));
+                require(token.asmApprove(mtkn, uint256(-1)), "asmApprove failed");
             }
 
             uint256 amount = mtknTotalSupply.mul(token.balanceOf(this)).div(token.balanceOf(mtkn));
@@ -42,7 +42,7 @@ contract MultiBuyer is MultiShopper {
         for (i = mtkn.tokensCount(); i > 0; i--) {
             token = mtkn.tokens(i - 1);
             if (token.balanceOf(this) > 0) {
-                token.asmTransfer(msg.sender, token.balanceOf(this));
+                require(token.asmTransfer(msg.sender, token.balanceOf(this)), "asmTransfer failed");
             }
         }
     }
@@ -65,7 +65,7 @@ contract MultiBuyer is MultiShopper {
             ERC20 token = mtkn.tokens(i);
             amounts[i] = token.balanceOf(this);
             if (token.allowance(this, mtkn) == 0) {
-                token.asmApprove(mtkn, uint256(-1));
+                require(token.asmApprove(mtkn, uint256(-1)), "asmApprove failed");
             }
         }
 
@@ -76,7 +76,7 @@ contract MultiBuyer is MultiShopper {
         for (i = mtkn.tokensCount(); i > 0; i--) {
             token = mtkn.tokens(i - 1);
             if (token.balanceOf(this) > 0) {
-                token.asmTransfer(msg.sender, token.balanceOf(this));
+                require(token.asmTransfer(msg.sender, token.balanceOf(this)), "asmTransfer failed");
             }
         }
     }
